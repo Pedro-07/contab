@@ -1,0 +1,78 @@
+# Bloqueia o merge: lint, tipos, testes unitários, integração e isolamento, E2E,
+# auditoria de dependências e varredura de segredos (incremento Fundação, seção 7).
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verificar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      CI: 'true'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Instalar dependências
+        run: pnpm install --frozen-lockfile
+
+      - name: Formatação
+        run: pnpm format:check
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Tipos
+        run: pnpm typecheck
+
+      - name: Auditoria de dependências
+        run: pnpm audit --audit-level high
+
+      - name: Varredura de segredos
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Subir Postgres e Mailpit
+        run: docker compose up -d --wait
+
+      - name: Testes unitários, de integração e de isolamento
+        run: pnpm test
+
+      - name: Build da web
+        run: |
+          set -a; . ./.env.test; set +a
+          pnpm build
+
+      - name: Instalar o Chromium do Playwright
+        run: pnpm --filter @contab/e2e exec playwright install --with-deps chromium
+
+      - name: E2E (360 px)
+        run: pnpm test:e2e
+
+      - name: Relatório do E2E
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: e2e/playwright-report
+          retention-days: 7
