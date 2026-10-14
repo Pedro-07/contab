@@ -96,8 +96,10 @@ export function createAuth({
 
         if (MFA_PATHS.has(ctx.path)) {
           if (ok) {
-            // O token devolvido é o da sessão atual (ou da nova, quando o TOTP acabou de ser ativado).
-            await markSessionMfaVerifiedByToken(returned.token as string, db);
+            // Na primeira ativação do TOTP o plugin troca a sessão, mas devolve no corpo o token
+            // da antiga, já apagada. Nesse caso a sessão que vale é a nova, posta no cookie.
+            const token = ctx.context.newSession?.session.token ?? (returned.token as string);
+            await markSessionMfaVerifiedByToken(token, db);
           } else {
             await recordSecurityEvent(
               { type: 'mfa_failed', userId: ctx.context.session?.user.id ?? null },
