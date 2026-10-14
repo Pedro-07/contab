@@ -23,7 +23,7 @@ Legenda: **[plano]** vem do plano; **[decidido]** foi escolhido pelo Pedro em 14
 - Contatos (pessoas) ligados a uma ou mais empresas, com papel (sócio, financeiro, outro), canal preferido e opt-in por canal com histórico.
 - Importação por CSV, com pré-visualização e relatório de erros por linha.
 - Documentos por empresa, organizados em pastas (categorias), com versões; upload direto para o storage e verificação do arquivo pelo worker.
-- Adaptador de storage (Cloudflare R2 em produção; MinIO no Docker em dev, testes e CI).
+- Adaptador de storage (Cloudflare R2 em produção; SeaweedFS no Docker em dev, testes e CI).
 - Portal: vínculo pessoa ↔ empresa (`client_access`), sessão do portal presa ao tenant, escolha da empresa ativa, lista e download dos documentos da empresa ativa (D1).
 
 **Não entra:** login do portal (D1), envio automático de documento pelo WhatsApp ou e-mail (próximo incremento), guias, CRM completo (inbox, tarefas, linha do tempo), `entitlements` (P20), exportação de dados do tenant, exclusão definitiva (LGPD), domínio próprio do escritório.
@@ -60,14 +60,14 @@ Rollback: `rollback/0002_clientes_documentos.down.sql` apaga as tabelas novas (s
 ## 4. Storage (`packages/adapters/storage`)
 
 - **[plano]** Bucket privado; chave `tenants/{tenant_id}/companies/{company_id}/documents/{document_id}/v{n}`; URL assinada de 5 min, gerada só depois da checagem de permissão.
-- **[recomendação]** SDK S3 da AWS (`@aws-sdk/client-s3` e o assinador de URL), que funciona com R2 e MinIO. O adaptador recebe o `TenantContext` e monta a chave; uma chave fora de `tenants/{tenant do contexto}/` é recusada antes de chegar ao storage.
+- **[recomendação]** SDK S3 da AWS (`@aws-sdk/client-s3` e o assinador de URL), que funciona com R2 e SeaweedFS. O adaptador recebe o `TenantContext` e monta a chave; uma chave fora de `tenants/{tenant do contexto}/` é recusada antes de chegar ao storage.
 - **[recomendação] Upload direto do navegador para o storage.** A Vercel limita o corpo da requisição a cerca de 4,5 MB, menos que os 10 MB permitidos. O fluxo:
   1. o painel pede o envio (server action): checa papel, empresa, tamanho e tipo declarados; cria a versão `aguardando_envio`; devolve uma URL assinada de PUT válida por 5 min;
   2. o navegador envia o arquivo direto ao storage;
   3. o painel confirma; o servidor enfileira o job `document.verify` (com `tenant_id`);
   4. o worker confere o tamanho real, a assinatura dos primeiros bytes e calcula o SHA-256. Se estiver tudo certo, marca `disponivel`; se não, marca `rejeitado` com o motivo e apaga o objeto.
 - Download: server action checa a permissão e gera uma URL assinada de GET de 5 min, com `Content-Disposition: attachment`.
-- **Local e CI:** MinIO no `docker-compose.yml`, com o bucket e o CORS criados na subida. **Produção:** bucket R2 privado, CORS liberando PUT só para `https://app.<domínio>`; passo a passo no runbook (`10-deploy-e-operacao.md`).
+- **Local e CI:** SeaweedFS (S3) no `docker-compose.yml`; o bucket e a regra de CORS são criados pela preparação dos testes e por `pnpm storage:setup`. O nome de download vai gravado no objeto no envio, porque o SeaweedFS ignora o nome pedido na URL de download. **Produção:** bucket R2 privado, CORS liberando PUT só para `https://app.<domínio>`; passo a passo no runbook (`10-deploy-e-operacao.md`).
 
 ## 5. Importação por CSV
 
@@ -101,7 +101,7 @@ Todos recebem `TenantContext`, checam a permissão no servidor, gravam em `audit
 
 ## 8. Testes
 
-**Isolamento (Vitest, Postgres e MinIO reais), bloqueiam o merge:**
+**Isolamento (Vitest, Postgres e SeaweedFS reais), bloqueiam o merge:**
 1. Usuário do Alfa lê, edita e exclui empresa, contato e documento do Beta pelo ID: 404, nenhum efeito no banco, evento em `security_events`.
 2. O mesmo CNPJ existe no Alfa e no Beta sem conflito; importar no Alfa nunca altera o Beta.
 3. URL assinada de documento do Beta nunca é gerada para usuário do Alfa; a URL gerada expira em 5 min (`X-Amz-Expires=300`).
@@ -126,7 +126,7 @@ packages/db/src/schema/clients.ts, documents.ts, portal.ts
 packages/db/src/repositories/companies.ts, contacts.ts, documents.ts, portal-sessions.ts
 packages/db/src/seed-data.ts                              empresas e contatos fictícios (João em duas empresas do Alfa)
 packages/domain/src/cnpj.ts, phone.ts, files.ts, roles.ts (permissões novas)
-packages/adapters/src/storage/index.ts                    S3/R2/MinIO, chave presa ao tenant
+packages/adapters/src/storage/index.ts                    S3/R2/SeaweedFS, chave presa ao tenant
 packages/core/src/companies.ts, contacts.ts, csv-import.ts, documents.ts, portal.ts
 apps/worker/src/jobs/document-verify.ts
 apps/worker/src/cli/portal-dev-login.ts
@@ -134,7 +134,7 @@ apps/web/src/app/painel/(protegido)/clientes/...          lista, nova, importar,
 apps/web/src/app/portal/[slug]/...                        escolha de empresa, documentos, entrada de dev
 apps/web/src/server/portal.ts                             sessão do portal pelo host
 packages/config/src/env.ts                                variáveis do storage
-docker-compose.yml                                        MinIO
+docker-compose.yml                                        SeaweedFS
 tests/integration/clientes.test.ts, documentos.test.ts, portal.test.ts, csv.test.ts
 e2e/tests/clientes-documentos.spec.ts
 fixtures/csv/clientes-exemplo.csv                         dados fictícios
@@ -144,5 +144,9 @@ docs/05-modelo-de-dados.md, docs/10-deploy-e-operacao.md  ajustes (portal_users,
 ## 10. Pendências e riscos
 
 - **[pendente] Lista de clientes da Contact** (já está em "Decisões pendentes"): o formato do CSV acima é proposto sem ver a planilha real. Se ela tiver outro formato, ajusto o modelo de importação.
-- **Bucket R2 e domínio de staging:** só são necessários para o deploy em staging; o desenvolvimento e o CI usam MinIO.
+- **Bucket R2 e domínio de staging:** só são necessários para o deploy em staging; o desenvolvimento e o CI usam SeaweedFS.
 - **Risco:** a rota de entrada de desenvolvimento do portal (seção 6) é uma porta de entrada sem login. A mitigação é a trava por `APP_ENV` com teste automático; ela é removida quando o login por WhatsApp chegar.
+
+## 11. Execução (registro da implementação)
+
+- **SeaweedFS no lugar do MinIO (14/10/2026).** A imagem `minio/minio` não está mais disponível no Docker Hub nem no quay.io sem login. O SeaweedFS é compatível com S3, confere a assinatura das URLs e aplica regra de CORS por bucket, como o R2. Em produção nada muda (R2).

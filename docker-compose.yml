@@ -1,4 +1,4 @@
-# Ambiente local. Em produção, o banco é o Neon (ADR 0003).
+# Ambiente local. Em produção, o banco é o Neon (ADR 0003) e o storage é o Cloudflare R2.
 services:
   postgres:
     image: postgres:16
@@ -24,5 +24,25 @@ services:
       - '1025:1025'
       - '8025:8025'
 
+  # Storage compatível com S3, no lugar do R2 em dev e nos testes (incremento 2, seção 4).
+  # Confere a assinatura das URLs, como o R2. Credenciais fictícias em infra/seaweedfs/s3.json.
+  storage:
+    image: chrislusf/seaweedfs:3.97
+    command: >-
+      server -dir=/data -ip=127.0.0.1 -ip.bind=0.0.0.0 -volume.max=5
+      -s3 -s3.port=8333 -s3.config=/etc/seaweedfs/s3.json
+      -s3.allowedOrigins=http://app.localhost:3000
+    ports:
+      - '8333:8333'
+    volumes:
+      - ./infra/seaweedfs/s3.json:/etc/seaweedfs/s3.json:ro
+      - storagedata:/data
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -q -O /dev/null http://127.0.0.1:8333/healthz']
+      interval: 2s
+      timeout: 3s
+      retries: 60
+
 volumes:
   pgdata:
+  storagedata:

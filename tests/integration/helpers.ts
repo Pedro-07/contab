@@ -1,7 +1,18 @@
+import { createFileStorage, type FileStorage } from '@contab/adapters/storage';
 import type { TenantContext } from '@contab/db';
 import { createDb, type Db } from '@contab/db/testing';
 import type { Role, TenantId, UserId } from '@contab/domain';
 import { randomUUID } from 'node:crypto';
+
+/** Storage de teste (SeaweedFS do docker compose, bucket de teste do .env.test). */
+export function testStorage(): FileStorage {
+  return createFileStorage({
+    STORAGE_ENDPOINT: process.env.STORAGE_ENDPOINT!,
+    STORAGE_BUCKET: process.env.STORAGE_BUCKET!,
+    STORAGE_ACCESS_KEY_ID: process.env.STORAGE_ACCESS_KEY_ID!,
+    STORAGE_SECRET_ACCESS_KEY: process.env.STORAGE_SECRET_ACCESS_KEY!,
+  });
+}
 
 /** Conexão com o papel `app` (sem BYPASSRLS), a mesma da aplicação. */
 export function appDb(max = 4): Db {

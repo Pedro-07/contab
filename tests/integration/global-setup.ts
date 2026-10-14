@@ -3,6 +3,7 @@
  * migrações com o papel owner e cria o seed com dois tenants (Alfa e Beta).
  */
 import { createDb, installDatabase, seed, type SeedResult } from '@contab/db/testing';
+import { testStorage } from './helpers';
 import type { TestProject } from 'vitest/node';
 
 declare module 'vitest' {
@@ -36,6 +37,14 @@ export default async function setup(project: TestProject) {
   }
 
   await installDatabase(migratorUrl);
+  try {
+    await testStorage().ensureBucket(['http://app.localhost:3000']);
+  } catch (error) {
+    throw new Error(
+      `Não consegui conectar ao storage de teste. Rode "docker compose up -d" antes. (${(error as Error).message})`,
+      { cause: error },
+    );
+  }
 
   const app = createDb(appUrl, { max: 2 });
   try {

@@ -13,6 +13,7 @@ cp .env.example .env              # ajuste os valores (veja abaixo)
 docker compose up -d --wait       # Postgres + Mailpit
 pnpm db:migrate
 pnpm db:seed
+pnpm storage:setup
 pnpm dev
 ```
 
