@@ -28,7 +28,8 @@ Tenant piloto: Contact Consultoria.
   - `packages/adapters`: Serpro, Meta, e-mail, storage, realtime.
   - `packages/auth`: autenticação.
 - TypeScript estrito. Zod em toda entrada (API, webhooks, jobs, env).
-- Autenticação (P13, P14): Auth.js com link mágico por e-mail (Resend) e sessões no banco, revogáveis. Sem senha no painel e sem provider Credentials. TOTP obrigatório para dono e admin, com códigos de recuperação; a sessão só vale com `mfa_verified`.
+- Autenticação (P13, P14, P18): Better Auth em `packages/auth`, com link mágico por e-mail (Resend, `disableSignUp`, token com hash) e sessões no banco, revogáveis. Sem senha no painel. TOTP obrigatório para dono e admin, com códigos de recuperação. O plugin de dois fatores não trava o link mágico: a trava é nossa, e o painel exige `mfaVerifiedAt` na sessão. Não use o plugin `organization` do Better Auth.
+- Criptografia (P17): AWS KMS em produção; chave local só em desenvolvimento, testes e CI.
 - Domínios (P16):
   - `app.<domínio>`: painel de todos os escritórios (tenant pela sessão) e webhooks em `/api/webhooks/...`;
   - `<slug>.<domínio>`: portal e links seguros (tenant pelo subdomínio);

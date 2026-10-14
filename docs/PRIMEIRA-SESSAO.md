@@ -11,7 +11,7 @@ Antes de codar:
 2. Crie docs/adr/0001 a 0009 a partir da seção 16 do plano (e das decisões P12 a P16 da seção 2), no formato de ADR da skill.
 3. Me mostre:
    - a estrutura do monorepo
-   - o schema inicial (users, sessions e tabelas do Auth.js, mfa_recovery_codes, tenants,
+   - o schema inicial (users, sessions e tabelas do Better Auth, two_factors, tenants,
      memberships, invitations, tenant_settings, audit_logs, security_events)
    - as políticas RLS e como o TenantContext será propagado (web, worker, jobs)
    - a lista de testes negativos de isolamento que vão rodar no CI
@@ -21,7 +21,7 @@ Depois de aprovado:
 - Monorepo pnpm com apps/web (Next.js), apps/worker e packages/* conforme CLAUDE.md.
 - Postgres local via Docker, Drizzle, migrações versionadas.
 - RLS em toda tabela tenant-scoped, SET LOCAL app.tenant_id por transação.
-- Login por link mágico (Auth.js, sessões no banco), TOTP obrigatório para dono e admin,
+- Login por link mágico (Better Auth, sessões no banco), TOTP obrigatório para dono e admin,
   organização ativa, convites com expiração, papéis (dono, admin, contador, atendente),
   auditoria (audit_logs) e log de segurança (security_events).
 - Roteamento por subdomínio: app.<domínio> para o painel e <slug>.<domínio> para o portal.

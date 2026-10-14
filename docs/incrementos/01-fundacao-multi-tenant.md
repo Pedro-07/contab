@@ -1,9 +1,9 @@
 # Incremento 1 — Fundação multi-tenant
 
-- **Status:** aguardando aprovação do Pedro
+- **Status:** aprovado pelo Pedro em 14/10/2026, com as decisões P17 a P20
 - **Período previsto:** 26/10/2026 a 09/11/2026 (`02-escopo-mvp-e-backlog.md`, seção 14)
 - **Pronto quando:** todos os testes negativos de isolamento passando no CI, mais a definição de pronto do `CLAUDE.md`
-- **Decisões que valem aqui:** ADRs 0001 a 0004, 0006 e 0007; P13 a P16
+- **Decisões que valem aqui:** ADRs 0001 a 0004, 0006 e 0007; P13 a P20
 
 Legenda: **[plano]** vem do plano; **[recomendação]** é proposta deste documento e precisa de aprovação; **[pendente]** depende de decisão.
 
@@ -11,15 +11,15 @@ Legenda: **[plano]** vem do plano; **[recomendação]** é proposta deste docume
 
 **Entra:**
 - Monorepo, Postgres local, migrações, RLS, CI.
-- Login por link mágico (Auth.js, sessões no banco), TOTP para dono e admin, códigos de recuperação.
+- Login por link mágico (Better Auth, sessões no banco), TOTP para dono e admin, códigos de recuperação.
 - Organizações, membros, papéis (dono, admin, contador, atendente), troca de organização ativa.
 - Convites com expiração de 72 h e uso único.
 - `audit_logs` e `security_events`.
 - Roteamento por host: `app.<domínio>` (painel) e `<slug>.<domínio>` (portal, só a resolução do tenant e uma página provisória).
 - Seed com 2 tenants fictícios.
-- **[recomendação]** Criação de tenant por comando do operador (`pnpm tenant:create --slug ... --owner-email ...`), que cria o tenant e o convite do dono. O cadastro de escritório pela internet fica para "Portal com login e planos".
+- **[plano, P19]** Criação de tenant por comando do operador (`pnpm tenant:create --slug ... --owner-email ...`), que cria o tenant e o convite do dono. O cadastro de escritório pela internet fica para "Portal com login e planos".
 
-**Não entra:** empresas-clientes, documentos, storage, tempo real, WhatsApp, Serpro, portal com login, `entitlements` e `usage_counters`, modo suporte do operador (só a tabela e o registro ficam prontos).
+**Não entra (P20):** empresas-clientes, documentos, storage, tempo real, WhatsApp, Serpro, portal com login, `entitlements` e `usage_counters`, modo suporte do operador (só a tabela e o registro ficam prontos).
 
 ## 2. Estrutura do monorepo
 
@@ -42,8 +42,8 @@ contab/
 ├─ packages/
 │  ├─ db/                       Drizzle: schema, migrações SQL (com RLS), papéis, withTenant()
 │  ├─ domain/                   regras puras: papéis e permissões, convites, último dono
-│  ├─ auth/                     configuração do Auth.js, TOTP, códigos de recuperação, guards
-│  ├─ adapters/                 e-mail (Resend) e criptografia em envelope; os demais nos próximos incrementos
+│  ├─ auth/                     Better Auth (link mágico, sessões, dois fatores), guard do MFA
+│  ├─ adapters/                 e-mail (Resend; SMTP do Mailpit em dev) e criptografia em envelope (local | AWS KMS)
 │  └─ config/                   schema Zod das variáveis de ambiente, logger (pino)
 ├─ e2e/                         Playwright
 ├─ docker-compose.yml           Postgres 16 e Mailpit
@@ -63,11 +63,12 @@ IDs em UUID v7 gerados na aplicação; datas em `timestamptz`; exclusão lógica
 | Tabela | Colunas principais | Restrições |
 | --- | --- | --- |
 | `tenants` | `id`, `slug`, `name`, `status` (`trial`, `active`, `past_due`, `suspended`, `closed`), `plan`, `created_at`, `deleted_at` | `slug` único, minúsculo, `^[a-z0-9-]{3,40}$`, fora da lista de reservados |
-| `users` | `id`, `email` (citext), `email_verified`, `name`, `phone` (E.164), `totp_secret_enc`, `totp_enabled_at`, `created_at` | `email` único; `phone` único quando preenchido |
-| `accounts` | colunas exigidas pelo adaptador do Auth.js | não usada pelo link mágico, mas exigida pelo adaptador |
-| `sessions` | `session_token`, `user_id`, `expires`, `active_tenant_id`, `mfa_verified_at`, `ip`, `user_agent`, `created_at` | revogar = apagar a linha |
-| `verification_tokens` | `identifier`, `token` (com hash, pelo Auth.js), `expires` | link mágico de uso único |
-| `mfa_recovery_codes` | `id`, `user_id`, `code_hash`, `used_at` | 10 códigos por usuário **[recomendação]** |
+| `users` | `id`, `email` (citext), `email_verified`, `name`, `image`, `phone` (E.164), `two_factor_enabled`, `created_at`, `updated_at` | `email` único; `phone` único quando preenchido; colunas exigidas pelo Better Auth mais `phone` |
+| `accounts` | colunas exigidas pelo Better Auth | não usada pelo link mágico, mas exigida pela biblioteca |
+| `sessions` | `id`, `token`, `user_id`, `expires_at`, `active_tenant_id`, `mfa_verified_at`, `ip_address`, `user_agent`, `created_at` | `active_tenant_id` e `mfa_verified_at` são campos adicionais nossos; revogar = apagar a linha |
+| `verifications` | `id`, `identifier`, `value` (token com hash: `storeToken: "hashed"`), `expires_at` | link mágico de uso único, 15 min |
+| `two_factors` | `id`, `user_id`, `secret`, `backup_codes` | tabela do plugin; 10 códigos de recuperação de uso único |
+| `rate_limits` | tabela do limite de tentativas do Better Auth | guardado no banco porque a Vercel roda várias instâncias |
 | `security_events` | `id`, `occurred_at`, `type`, `user_id`, `active_tenant_id`, `resource_type`, `resource_id`, `ip`, `request_id`, `details` (jsonb, sem conteúdo) | papel `app` só insere |
 
 Tipos de `security_events`: `resource_not_found`, `forbidden`, `tenant_switch_denied`, `login_failed`, `mfa_failed`, `invitation_invalid`, `webhook_signature_invalid`, `support_mode` (os dois últimos usados nos próximos incrementos).
@@ -147,10 +148,10 @@ type TenantContext = {
 **Banco (`packages/db`).** `withTenant(ctx, fn)` abre a transação e executa `select set_config('app.tenant_id', $1, true), set_config('app.user_id', $2, true)`. O `set_config` com `true` é o mesmo que `SET LOCAL`, mas aceita parâmetro. Os repositórios recebem um `TenantTx`, tipo que só `withTenant` produz. Sem contexto, o código não compila. Tabelas globais usam `withGlobal`, liberado só para `packages/auth` e para a resolução de tenant.
 
 **Painel (`app.<domínio>`).** `getPainelContext()`, só no servidor:
-1. lê a sessão do Auth.js (cookie `__Host-`);
+1. lê a sessão do Better Auth (cookie `__Host-`);
 2. pega `active_tenant_id` **da sessão no banco**;
 3. confere a membership ativa e o papel;
-4. exige `mfa_verified_at` se o papel for dono ou admin;
+4. exige `mfa_verified_at` se o papel for dono ou admin. O plugin de dois fatores do Better Auth não trava o link mágico, então essa trava é nossa: sem a marca, o painel redireciona para a tela do código, e só um código TOTP ou de recuperação válido grava `mfa_verified_at`;
 5. devolve o `TenantContext`.
 
 Nenhuma rota lê tenant de parâmetro, corpo, header ou cookie próprio. A troca de organização recebe o ID escolhido como **pedido**: o servidor confere a membership, grava na sessão e registra `tenant_switch_denied` em `security_events` quando não houver vínculo.
@@ -218,5 +219,6 @@ Todas as etapas bloqueiam o merge. O E2E em staging fica para quando o domínio 
 
 ## 8. Pendências que afetam este incremento
 
-- **[pendente] Provedor do KMS (I8).** O segredo TOTP precisa ser cifrado. Proposta: o adaptador de criptografia em envelope tem uma implementação local (chave no `.env`) para desenvolvimento, testes e CI; o provedor de produção é decidido antes de guardar o primeiro segredo real, até 23/11. **[recomendação]** AWS KMS, que combina com o `KMS_REGION` do `.env.example`.
+- **[decidido, P17] KMS.** O adaptador de criptografia tem as implementações `local` (desenvolvimento, testes e CI) e `aws-kms`. A conta AWS e a chave são criadas até 23/11/2026, antes do primeiro dado real.
+- **[a confirmar na implementação] Segredo TOTP.** A documentação do Better Auth não diz se o segredo é cifrado no banco. Se não for, ciframos com o adaptador (ADR 0007).
 - **[pendente] Domínio provisório (P16).** Não bloqueia o desenvolvimento, que roda em `*.localhost`; bloqueia o staging.

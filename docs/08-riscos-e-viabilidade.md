@@ -37,6 +37,7 @@ As decisões P1 a P6 e P8 a P16 foram tomadas em 14/10/2026 (seção 2). Ainda f
 - [ ] **Materiais da Contact.** PDFs de guias anonimizados e lista de clientes com regime.
 - [ ] **Jurídico.** Contrato com a Contact (assinatura, fidelidade, licença de uso), DPA e termos de uso. O contrato precisa prever o repasse do consumo da Serpro no modo plataforma.
 - [ ] **P7 — Nome e marca.** Definir antes de março de 2027.
+- [ ] **Conta AWS e chave no KMS (P17).** Criar até 23/11/2026, antes do primeiro dado real. *Bloqueia a produção com dados da Contact.*
 - [ ] **Domínio provisório (P16).** Comprar para staging e confirmar se o subdomínio coringa na Vercel exige os nameservers dela. *Bloqueia o staging com subdomínios.*
 
 * [ ] **SEFAZ-MA e CRC-MA.** Perguntar se existe webservice ou convênio para escritórios contábeis emitirem DARE. Se existir, o ICMS-MA sai do fluxo assistido.
@@ -55,4 +56,4 @@ Encontradas na revisão de 14/10/2026. Não bloqueiam a Fundação. Cada uma dev
 | I5 | RN1 não prevê `vencida → paga` (cliente paga a guia vencida sem recalcular) nem diz se a guia gerada pela Serpro passa por `rascunho` | 03 (RN1) | Guias, templates e entrega |
 | I6 | O MVP já tem portal básico com login, mas existe o incremento pós-MVP "Portal com login e planos". Falta definir a diferença | 02 | Honorários e portal básico |
 | I7 | Quantidade de PDFs de exemplo: 10 a 20 (`fixtures/guias/LEIA-ME.txt`), 20 (seção 14) ou 50 (R7) | 02, 08 | Descoberta e PoCs |
-| I8 | Detalhes de texto: "quatro frentes" com cinco itens (seção 1); "nove módulos" com 11 linhas (seção 4); declarações de IR citadas na LGPD sem estar no escopo; provedor do KMS não definido (`KMS_REGION` sugere AWS) | 00, 03, 07 | Quando o tema for tocado; o KMS antes de guardar o primeiro segredo |
+| I8 | Detalhes de texto: "quatro frentes" com cinco itens (seção 1); "nove módulos" com 11 linhas (seção 4); declarações de IR citadas na LGPD sem estar no escopo | 00, 03, 07 | Quando o tema for tocado. (O provedor do KMS, que também estava aqui, foi resolvido pela P17: AWS KMS.) |

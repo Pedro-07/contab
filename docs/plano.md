@@ -9,7 +9,7 @@ Este arquivo é o índice do plano. Em 14/10/2026, o conteúdo foi dividido, sem
 | Seção do plano | Arquivo |
 | --- | --- |
 | 1. Resumo executivo | [00-contexto-e-visao.md](00-contexto-e-visao.md) |
-| 2. Confirmado, hipóteses e decisões (P1 a P16) | [00-contexto-e-visao.md](00-contexto-e-visao.md) |
+| 2. Confirmado, hipóteses e decisões (P1 a P20) | [00-contexto-e-visao.md](00-contexto-e-visao.md) |
 | 3. Escopo | [02-escopo-mvp-e-backlog.md](02-escopo-mvp-e-backlog.md) |
 | 4. Módulos e requisitos funcionais (inclui a Matriz de automação) | [03-requisitos-e-regras-de-negocio.md](03-requisitos-e-regras-de-negocio.md) |
 | 5. Regras de negócio (RN1 a RN17) e critérios de aceitação (CA1 a CA9) | [03-requisitos-e-regras-de-negocio.md](03-requisitos-e-regras-de-negocio.md) |
@@ -39,7 +39,7 @@ Não existe `01-descoberta-e-indicadores.md`: a descoberta (hipóteses e indicad
 | [0004](adr/0004-hospedagem-vercel-railway-ably-e-dominios.md) | Vercel, Railway, Ably e domínios |
 | [0005](adr/0005-whatsapp-cloud-api-oficial.md) | WhatsApp só pela Cloud API oficial |
 | [0006](adr/0006-certificados-e-credenciais.md) | Certificados e credenciais |
-| [0007](adr/0007-drizzle-zod-e-autenticacao.md) | Drizzle, Zod e Auth.js com link mágico e TOTP |
+| [0007](adr/0007-drizzle-zod-e-autenticacao.md) | Drizzle, Zod e Better Auth com link mágico e TOTP |
 | [0008](adr/0008-whatsapp-canal-principal-e-templates.md) | WhatsApp como canal principal e templates da plataforma |
 | [0009](adr/0009-honorarios-na-conta-do-escritorio.md) | Honorários na conta do escritório |
 

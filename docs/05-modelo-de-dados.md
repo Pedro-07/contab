@@ -8,9 +8,9 @@ São cerca de 30 tabelas em seis grupos. Escopo **global** significa sem tenant.
 
 | Grupo | Tabela | Escopo | Campos e restrições principais |
 | --- | --- | --- | --- |
-| Identidade | `users` | global | e-mail e telefone únicos; sem senha (login por link mágico); segredo TOTP cifrado, obrigatório para dono e admin |
-| Identidade | `accounts`, `sessions`, `verification_tokens` | global | tabelas do Auth.js; sessão no banco, revogável, com `mfa_verified` e organização ativa |
-| Identidade | `mfa_recovery_codes` | global | códigos de recuperação com hash, uso único |
+| Identidade | `users` | global | e-mail e telefone únicos; sem senha (login por link mágico); `two_factor_enabled`; TOTP obrigatório para dono e admin |
+| Identidade | `accounts`, `sessions`, `verifications` | global | tabelas do Better Auth; sessão no banco, revogável, com `active_tenant_id` e `mfa_verified_at`; token do link mágico com hash |
+| Identidade | `two_factors` | global | tabela do plugin de dois fatores do Better Auth: segredo TOTP e códigos de recuperação de uso único |
 | Identidade | `security_events` | global | tipo, usuário, tenant ativo, recurso e ID pedido, IP, data; somente inserção pelo app, leitura só pelo operador |
 | Identidade | `tenants` | global | nome, slug único, domínio, status, plano |
 | Identidade | `memberships` | tenant | `(tenant_id, user_id)` único, papel |
