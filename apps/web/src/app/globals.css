@@ -1,0 +1,165 @@
+/* Base acessível: contraste AA, foco visível, funciona a partir de 360 px. */
+:root {
+  --fg: #1a1a1a;
+  --muted: #555;
+  --bg: #fff;
+  --line: #d0d0d0;
+  --accent: #0b5cad;
+  --danger: #a4161a;
+  --ok: #1b5e20;
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
+  color: var(--fg);
+  background: var(--bg);
+  line-height: 1.5;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+}
+main {
+  max-width: 56rem;
+  margin: 0 auto;
+  padding: 1rem;
+}
+h1 {
+  font-size: 1.5rem;
+  margin: 0.5rem 0 1rem;
+}
+h2 {
+  font-size: 1.15rem;
+  margin: 1.5rem 0 0.5rem;
+}
+a {
+  color: var(--accent);
+}
+:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+label {
+  display: block;
+  font-weight: 600;
+  margin: 0.75rem 0 0.25rem;
+}
+input,
+select,
+button {
+  font: inherit;
+  min-height: 44px;
+}
+input,
+select {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #767676;
+  border-radius: 4px;
+}
+button {
+  padding: 0.5rem 1rem;
+  border: 0;
+  border-radius: 4px;
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+}
+button.secondary {
+  background: #fff;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+}
+button.danger {
+  background: var(--danger);
+}
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.card {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 1rem;
+  margin: 0.75rem 0;
+}
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+.muted {
+  color: var(--muted);
+}
+.alert {
+  color: var(--danger);
+  font-weight: 600;
+}
+.success {
+  color: var(--ok);
+  font-weight: 600;
+}
+.code {
+  font-family: ui-monospace, monospace;
+  word-break: break-all;
+}
+nav.top {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--line);
+}
+nav.top .spacer {
+  flex: 1;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+th,
+td {
+  text-align: left;
+  padding: 0.5rem;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+@media (max-width: 40rem) {
+  table,
+  thead,
+  tbody,
+  tr,
+  th,
+  td {
+    display: block;
+  }
+  thead {
+    position: absolute;
+    left: -9999px;
+  }
+  tr {
+    border-bottom: 1px solid var(--line);
+    padding: 0.5rem 0;
+  }
+  td {
+    border: 0;
+    padding: 0.25rem 0;
+  }
+  td[data-label]::before {
+    content: attr(data-label) ': ';
+    font-weight: 600;
+  }
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}

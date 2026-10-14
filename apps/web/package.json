@@ -1,0 +1,32 @@
+{
+  "name": "@contab/web",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev --port 3000",
+    "build": "next build",
+    "start": "next start --port 3000",
+    "typecheck": "next typegen && tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@contab/adapters": "workspace:*",
+    "@contab/auth": "workspace:*",
+    "@contab/config": "workspace:*",
+    "@contab/core": "workspace:*",
+    "@contab/db": "workspace:*",
+    "@contab/domain": "workspace:*",
+    "better-auth": "1.7.8",
+    "next": "16.4.1",
+    "pg-boss": "12.38.0",
+    "qrcode": "1.5.4",
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "26.6.5",
+    "@types/qrcode": "1.5.6",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "typescript": "6.0.3"
+  }
+}
