@@ -1,0 +1,2 @@
+Coloque aqui 10 a 20 PDFs reais de guias (DAS, DCTFWeb, FGTS, DARE-MA, ISS, PGFN) com dados anonimizados.
+Nomeie como <tipo>-<n>.pdf, ex.: das-simples-01.pdf
