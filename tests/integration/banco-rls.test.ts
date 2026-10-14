@@ -19,7 +19,21 @@ import { afterAll, beforeAll, describe, expect, inject, it } from 'vitest';
 import { appDb, dbErrorMessage, ownerDb, systemCtx } from './helpers';
 
 const seed = inject('seed');
-const TENANT_TABLES = ['memberships', 'invitations', 'tenant_settings', 'audit_logs'];
+const TENANT_TABLES = [
+  'memberships',
+  'invitations',
+  'tenant_settings',
+  'audit_logs',
+  // Incremento 2
+  'client_companies',
+  'contacts',
+  'contact_consents',
+  'company_contacts',
+  'client_access',
+  'portal_sessions',
+  'documents',
+  'document_versions',
+];
 
 let app: Db;
 let owner: Db;
@@ -85,8 +99,17 @@ describe('papel da aplicação (2, 7)', () => {
     );
   });
 
-  it('app não apaga linhas de tenant (exclusão lógica)', async () => {
-    await expect(app.$client.query('delete from memberships')).rejects.toThrow(/permission denied/);
+  it.each(TENANT_TABLES.filter((t) => t !== 'audit_logs'))(
+    'app não apaga linhas de %s (exclusão lógica)',
+    async (table) => {
+      await expect(app.$client.query(`delete from ${table}`)).rejects.toThrow(/permission denied/);
+    },
+  );
+
+  it('app não altera o histórico de consentimento', async () => {
+    await expect(app.$client.query('update contact_consents set status = status')).rejects.toThrow(
+      /permission denied/,
+    );
   });
 });
 

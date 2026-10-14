@@ -23,7 +23,12 @@ export const tenantStatus = pgEnum('tenant_status', [
   'closed',
 ]);
 export const memberRole = pgEnum('member_role', ['dono', 'admin', 'contador', 'atendente']);
-export const auditActorType = pgEnum('audit_actor_type', ['member', 'operator', 'system']);
+export const auditActorType = pgEnum('audit_actor_type', [
+  'member',
+  'operator',
+  'system',
+  'contact',
+]);
 export const securityEventType = pgEnum('security_event_type', [
   'resource_not_found',
   'forbidden',
