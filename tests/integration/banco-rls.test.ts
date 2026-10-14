@@ -16,7 +16,7 @@ import type { Db } from '@contab/db/testing';
 import { eq, sql } from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, inject, it } from 'vitest';
-import { appDb, ownerDb, systemCtx } from './helpers';
+import { appDb, dbErrorMessage, ownerDb, systemCtx } from './helpers';
 
 const seed = inject('seed');
 const TENANT_TABLES = ['memberships', 'invitations', 'tenant_settings', 'audit_logs'];
@@ -135,20 +135,22 @@ describe('contexto de Alfa contra dados de Beta (4)', () => {
   });
 
   it('insert com tenant_id de Beta é recusado', async () => {
-    await expect(
-      withTenant(
-        alfaCtx(),
-        (tx) =>
-          tx.insert(invitations).values({
-            tenantId: seed.beta.id,
-            id: randomUUID(),
-            email: 'x@exemplo.test',
-            role: 'atendente',
-            expiresAt: new Date(Date.now() + 3600_000),
-          }),
-        app,
+    expect(
+      await dbErrorMessage(
+        withTenant(
+          alfaCtx(),
+          (tx) =>
+            tx.insert(invitations).values({
+              tenantId: seed.beta.id,
+              id: randomUUID(),
+              email: 'x@exemplo.test',
+              role: 'atendente',
+              expiresAt: new Date(Date.now() + 3600_000),
+            }),
+          app,
+        ),
       ),
-    ).rejects.toThrow(/row-level security/);
+    ).toMatch(/row-level security/);
   });
 
   it('repositório responde NotFound para ID de Beta', async () => {
@@ -209,21 +211,23 @@ describe('reúso da conexão do pool (5)', () => {
 describe('estrangeira composta (6)', () => {
   it('convite não pode apontar para membro de outro tenant', async () => {
     // donoBeta é membro de Beta, não de Alfa.
-    await expect(
-      withTenant(
-        systemCtx(seed.alfa.id),
-        (tx) =>
-          tx.insert(invitations).values({
-            tenantId: seed.alfa.id,
-            id: randomUUID(),
-            email: 'y@exemplo.test',
-            role: 'atendente',
-            invitedByUserId: seed.users.donoBeta.id,
-            expiresAt: new Date(Date.now() + 3600_000),
-          }),
-        app,
+    expect(
+      await dbErrorMessage(
+        withTenant(
+          systemCtx(seed.alfa.id),
+          (tx) =>
+            tx.insert(invitations).values({
+              tenantId: seed.alfa.id,
+              id: randomUUID(),
+              email: 'y@exemplo.test',
+              role: 'atendente',
+              invitedByUserId: seed.users.donoBeta.id,
+              expiresAt: new Date(Date.now() + 3600_000),
+            }),
+          app,
+        ),
       ),
-    ).rejects.toThrow(/invitations_invited_by_fk/);
+    ).toMatch(/invitations_invited_by_fk/);
   });
 });
 

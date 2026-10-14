@@ -13,7 +13,7 @@ import { eq, sql } from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
 import type { PgBoss } from 'pg-boss';
 import { afterAll, beforeAll, describe, expect, inject, it } from 'vitest';
-import { memberCtx, ownerDb, systemCtx, uniqueEmail } from './helpers';
+import { dbErrorMessage, memberCtx, ownerDb, systemCtx, uniqueEmail } from './helpers';
 
 const seed = inject('seed');
 let owner: Db;
@@ -71,9 +71,11 @@ describe('job com tenant errado (22)', () => {
         expiresAt: new Date(Date.now() + 3600_000),
       });
     });
-    await expect(
-      job.run({ id: randomUUID(), data: { tenantId: seed.alfa.id, invitationId: randomUUID() } }),
-    ).rejects.toThrow(/row-level security/);
+    expect(
+      await dbErrorMessage(
+        job.run({ id: randomUUID(), data: { tenantId: seed.alfa.id, invitationId: randomUUID() } }),
+      ),
+    ).toMatch(/row-level security/);
   });
 
   it('job de Alfa não lê convite de Beta', async () => {
