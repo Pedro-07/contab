@@ -13,10 +13,11 @@ Outras definições:
 Tenant piloto: Contact Consultoria.
 
 ## Fontes da verdade
-- `docs/plano.md` é o plano completo. Leia a seção relevante antes de qualquer tarefa.
+- `docs/plano.md` é o índice do plano: diz em qual arquivo de `docs/` está cada seção (1 a 16). Leia a seção relevante antes de qualquer tarefa. As seções mantêm a numeração original dentro de cada arquivo.
+- `docs/incrementos/` guarda o plano de cada incremento, aprovado antes do código.
 - `.claude/skills/modern-software-planning/SKILL.md` define o método de planejamento, os testes de isolamento e a definição de pronto.
-- `docs/adr/` guarda as decisões de arquitetura. Não contrarie um ADR sem propor um novo.
-- Se o plano estiver ambíguo ou faltar uma decisão (seção 16, "Decisões pendentes"), **pare e pergunte**. Não invente requisito.
+- `docs/adr/` guarda as decisões de arquitetura (0001 a 0009). Não contrarie um ADR sem propor um novo.
+- Se o plano estiver ambíguo ou faltar uma decisão (`docs/08-riscos-e-viabilidade.md`, "Decisões pendentes" e "Inconsistências conhecidas"), **pare e pergunte**. Não invente requisito.
 
 ## Stack (ADRs 0001–0009)
 - Monorepo pnpm:
