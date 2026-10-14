@@ -32,7 +32,9 @@ export default defineConfig({
     {
       command: web,
       cwd: root,
-      url: 'http://localhost:3000/api/auth/ok',
+      // Espera pela porta, não por URL: localhost redireciona para app.localhost, que o Node
+      // no Windows não resolve (o Chromium resolve *.localhost sozinho).
+      port: 3000,
       reuseExistingServer: !process.env.CI,
       timeout: 180_000,
       env: process.env as Record<string, string>,
