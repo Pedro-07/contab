@@ -7,7 +7,7 @@ import { authClient } from '@/lib/auth-client';
 
 function errorMessage(status: number | undefined): string {
   if (status === 429) return 'Muitas tentativas. Aguarde alguns minutos.';
-  return 'Código inválido. Confira o horário do celular e tente de novo.';
+  return 'Código inválido. Use o código atual do aplicativo e confira se o celular e o computador estão com o horário certo (automático).';
 }
 
 function CodeForm({
@@ -83,6 +83,10 @@ export function MfaSetup() {
   if (!setup) {
     return (
       <>
+        <p>
+          Cada clique gera um QR code novo, e o anterior para de funcionar. Se você já leu um QR
+          desta tela, apague essa conta do aplicativo antes de ler o novo.
+        </p>
         <button type="button" onClick={start}>
           Configurar aplicativo autenticador
         </button>
@@ -99,6 +103,10 @@ export function MfaSetup() {
     <>
       <div className="card">
         <h2>1. Leia o QR code no aplicativo</h2>
+        <p>
+          Confirme o código abaixo sem recarregar a página. Se recarregar, será preciso gerar outro
+          QR.
+        </p>
         <img
           src={setup.qr}
           alt="QR code para configurar o aplicativo autenticador"
