@@ -3,3 +3,11 @@
 node_modules/
 *.pfx
 *.p12
+.next/
+dist/
+coverage/
+*.tsbuildinfo
+test-results/
+playwright-report/
+.turbo/
+next-env.d.ts

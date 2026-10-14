@@ -52,3 +52,12 @@ A operação precisa caber na rotina de um desenvolvedor solo: tudo gerenciado, 
 ### Suporte
 
 O canal de suporte do escritório é o próprio WhatsApp do Pedro, com SLA de resposta em horário comercial. Os defeitos são registrados em issues do GitHub com prioridade: P1 (vazamento ou sistema fora do ar), P2 (função quebrada) e P3 (melhoria).
+
+### Papéis do banco no Neon (Fundação)
+
+A migração 0001 exige que o papel de login `app` já exista e recusa se ele for superusuário ou tiver `BYPASSRLS`. No Neon, antes do primeiro `pnpm db:migrate`:
+
+1. Criar o papel `app` pelo console do Neon (ou com `CREATE ROLE app LOGIN PASSWORD '...' NOSUPERUSER NOBYPASSRLS`).
+2. Conferir: `select rolsuper, rolbypassrls from pg_roles where rolname = 'app'` deve devolver `false, false`.
+3. `DATABASE_URL` usa o papel `app`; `DATABASE_MIGRATOR_URL` usa o dono do banco. Só o pipeline de migração conhece a segunda.
+4. Os papéis sem login `security_reader` e `invitation_resolver` são criados pela própria migração.

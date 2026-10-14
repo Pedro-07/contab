@@ -1,0 +1,32 @@
+{
+  "name": "contab",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@12.11.2",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev": "pnpm --parallel --filter @contab/web --filter @contab/worker dev",
+    "build": "pnpm --filter @contab/web build",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "pnpm -r --parallel typecheck",
+    "test": "vitest run",
+    "test:e2e": "pnpm --filter @contab/e2e test",
+    "db:generate": "pnpm --filter @contab/db generate",
+    "db:migrate": "pnpm --filter @contab/db migrate",
+    "db:seed": "pnpm --filter @contab/db seed",
+    "tenant:create": "pnpm --filter @contab/worker tenant:create"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "eslint": "10.12.0",
+    "typescript-eslint": "8.71.2",
+    "prettier": "3.9.10",
+    "typescript": "6.0.3",
+    "vitest": "5.0.4",
+    "@types/node": "26.6.5"
+  }
+}

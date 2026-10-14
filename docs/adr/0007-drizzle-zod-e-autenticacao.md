@@ -46,7 +46,9 @@ O acesso a dados precisa de SQL explícito para RLS, `SET LOCAL` e chaves compos
 
 - **Positivas:** sessões revogáveis; nenhuma senha guardada; menos código de segurança escrito à mão; biblioteca em desenvolvimento ativo; tipagem ponta a ponta do banco à API.
 - **Negativas:** biblioteca mais nova que o Auth.js, com menos histórico em produção; a trava do MFA no link mágico é código nosso e precisa de testes; o login depende da entrega do e-mail.
-- **A confirmar na implementação:** como o plugin guarda o segredo TOTP (a documentação não diz). Se ele cifrar com o segredo da aplicação, aceitamos, porque o segredo TOTP sozinho não dá acesso: ainda é preciso o link mágico do e-mail. Se ficar em texto puro, ciframos com o adaptador de criptografia (ADR 0006).
+- **Confirmado na implementação (código do Better Auth 1.7.8):** o plugin cifra o segredo TOTP e os códigos de recuperação com `BETTER_AUTH_SECRET`. Aceitamos, porque o segredo TOTP sozinho não dá acesso: ainda é preciso o link mágico do e-mail. Trocar o `BETTER_AUTH_SECRET` invalida os TOTP configurados.
+- **Limite de tentativas:** a verificação do código numa sessão já aberta não conta tentativas no plugin; o limite vem do rate limit do Better Auth (5 a cada 5 min por IP). A marca `mfaVerifiedAt` é gravada num gancho `after` do servidor, só quando o Better Auth aceita o código.
+- **Cookie:** em HTTPS, o cookie de sessão se chama `__Host-painel.session`, com `Secure`. Em HTTP (desenvolvimento), o nome é `painel.session_token`, sem prefixo.
 
 ## Reavaliar quando
 
