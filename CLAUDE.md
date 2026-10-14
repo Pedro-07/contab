@@ -145,15 +145,17 @@ Toda tarefa precisa cumprir:
 - Ao terminar, atualize `docs/` se alguma decisão mudou e liste as pendências.
 
 ## Comandos
-Ajuste quando o repositório existir.
 ```bash
+corepack enable                 # ou use "corepack pnpm" no lugar de "pnpm"
 pnpm install
-docker compose up -d        # Postgres local
-pnpm db:migrate             # migrações + políticas RLS
-pnpm db:seed                # 2 tenants fictícios para testes de isolamento
-pnpm dev                    # web + worker
-pnpm test                   # unit + integração (inclui isolamento)
-pnpm test:e2e               # Playwright
+cp .env.example .env            # e ajuste os valores
+docker compose up -d --wait     # Postgres local + Mailpit (http://localhost:8025)
+pnpm db:migrate                 # migrações + RLS + fila (papel owner)
+pnpm db:seed                    # 2 tenants fictícios (Alfa e Beta)
+pnpm dev                        # web (http://app.localhost:3000) + worker
+pnpm lint && pnpm typecheck && pnpm test   # inclui os testes de isolamento
+pnpm test:e2e                   # Playwright, 360 px
+pnpm tenant:create --slug contact --name "Contact Consultoria" --owner-email dona@exemplo.com.br
 ```
 
 ## Nunca

@@ -44,7 +44,9 @@ contab/
 │  ├─ domain/                   regras puras: papéis e permissões, convites, último dono
 │  ├─ auth/                     Better Auth (link mágico, sessões, dois fatores), guard do MFA
 │  ├─ adapters/                 e-mail (Resend; SMTP do Mailpit em dev) e criptografia em envelope (local | AWS KMS)
+│  ├─ core/                     casos de uso (membros, convites, criação de escritório, auditoria)
 │  └─ config/                   schema Zod das variáveis de ambiente, logger (pino)
+├─ tests/                       integração e isolamento (Vitest, Postgres real) e teste de tipo
 ├─ e2e/                         Playwright
 ├─ docker-compose.yml           Postgres 16 e Mailpit
 ├─ .github/workflows/ci.yml
@@ -222,3 +224,33 @@ Todas as etapas bloqueiam o merge. O E2E em staging fica para quando o domínio 
 - **[decidido, P17] KMS.** O adaptador de criptografia tem as implementações `local` (desenvolvimento, testes e CI) e `aws-kms`. A conta AWS e a chave são criadas até 23/11/2026, antes do primeiro dado real.
 - **[a confirmar na implementação] Segredo TOTP.** A documentação do Better Auth não diz se o segredo é cifrado no banco. Se não for, ciframos com o adaptador (ADR 0007).
 - **[pendente] Domínio provisório (P16).** Não bloqueia o desenvolvimento, que roda em `*.localhost`; bloqueia o staging.
+
+## 9. Execução (registro da implementação)
+
+O que mudou em relação ao plano aprovado, e por quê:
+
+| Mudança | Motivo |
+| --- | --- |
+| Pacote novo `packages/core` com os casos de uso | Web, worker (job de convite e `tenant:create`) e testes usam a mesma lógica de autorização e auditoria |
+| `withTenant` abre e controla a conexão do pool, em vez de usar `db.transaction` do Drizzle | O pg-boss precisa da conexão da transação para enfileirar o job junto com os dados (ADR 0003). O `set_config(..., true)` continua por transação |
+| O token do convite nasce no job, não na criação | O token em claro nunca fica gravado, nem na tabela da fila. Reenviar gera um token novo e invalida o anterior |
+| Tabela `two_factors` com `verified`, `failed_verification_count` e `locked_until` | Colunas exigidas pelo plugin do Better Auth 1.7.8 |
+| `mfa_recovery_codes` não existe | Os códigos de recuperação ficam cifrados em `two_factors`, pelo plugin (ADR 0007) |
+| Cookie `__Host-` só em HTTPS | O Better Auth sempre prefixa `__Secure-` quando o cookie é seguro. Em HTTPS o nome é definido à mão; em HTTP (dev) não existe `__Host-` |
+| `APP_ENV` separado do `NODE_ENV` | O `next start` força `NODE_ENV=production`, o que derrubaria o E2E no CI pela regra de exigir AWS KMS |
+| Limites de tentativa 20× maiores com `APP_ENV=test` | O E2E faz vários logins do mesmo IP. Os limites continuam ligados |
+| `security_events` registra também `forbidden` | Ação negada por papel fica rastreável, como a busca sem resultado |
+| A política `own_memberships_read` exige filtro explícito pelo tenant nos repositórios de membros | Sem o filtro, a membership do usuário em outro tenant apareceria na lista do tenant ativo |
+
+Cobertura dos testes da seção 6:
+
+- Itens 1 a 9: `tests/integration/banco-rls.test.ts`.
+- Item 10: `tests/types/tenant-tx.ts` (roda no `pnpm typecheck`).
+- Item 11: `tests/integration/logs-e-lint.test.ts`.
+- Itens 12, 13, 16 e 17: `tests/integration/casos-de-uso.test.ts`. O item 13 é garantido pelo tipo (os casos de uso não recebem tenant) e testado com um `tenantId` intruso no formulário.
+- Itens 14, 15 e 18: `tests/integration/painel-auth.test.ts`, com o Better Auth de verdade.
+- Itens 19 e 20: `e2e/tests/fundacao.spec.ts` (cookie do painel ausente no subdomínio do portal; slugs reservados e desconhecidos dão 404) e testes unitários de `resolveHost`.
+- Itens 21 a 23: `tests/integration/jobs.test.ts`.
+- Item 24: `tests/integration/logs-e-lint.test.ts`.
+
+**Pendente:** o teste 12 ainda não é gerado automaticamente a partir da lista de rotas. Na Fundação, cada caso de uso tem o teste escrito à mão; a geração automática fica para quando houver mais rotas (incremento "Clientes e documentos").
