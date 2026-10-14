@@ -1,0 +1,9 @@
+# Normaliza quebras de linha para LF (CI roda em Linux)
+* text=auto eol=lf
+
+# Binários
+*.pdf binary
+*.png binary
+*.jpg binary
+*.pfx binary
+*.p12 binary
