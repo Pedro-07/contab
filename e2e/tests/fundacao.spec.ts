@@ -45,7 +45,8 @@ test('dono configura o TOTP, convida um contador e o contador entra', async ({ p
 
   // Acesso direto à página de membros: recusado.
   await guest.goto('/membros');
-  await expect(guest.getByRole('alert')).toContainText('não permite');
+  // Filtra pelo texto: no build de produção o Next também põe um role="alert" (o anunciador de rota).
+  await expect(guest.getByRole('alert').filter({ hasText: 'não permite' })).toBeVisible();
 
   // A auditoria do dono mostra o aceite.
   await page.getByRole('link', { name: 'Auditoria' }).click();
