@@ -1,0 +1,24 @@
+{
+  "name": "@contab/adapters",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./email": "./src/email/index.ts",
+    "./crypto": "./src/crypto/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@aws-sdk/client-kms": "3.1151.0",
+    "@contab/config": "workspace:*",
+    "nodemailer": "10.1.1",
+    "resend": "6.33.0"
+  },
+  "devDependencies": {
+    "@types/node": "26.6.5",
+    "@types/nodemailer": "8.0.2",
+    "typescript": "6.0.3",
+    "vitest": "5.0.4"
+  }
+}
