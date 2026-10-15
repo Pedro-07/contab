@@ -1,5 +1,5 @@
 {
-  "id": "ba11be00-b44f-473d-bf86-4b790e03a471",
+  "id": "1d17dc1f-a7a6-4db5-9b17-6c71bdf78bec",
   "prevId": "114380bb-273f-42a4-a1aa-a06710f2c643",
   "version": "7",
   "dialect": "postgresql",
@@ -1051,6 +1051,12 @@
           "primaryKey": false,
           "notNull": true,
           "default": 9
+        },
+        "reply_to_email": {
+          "name": "reply_to_email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
         },
         "updated_at": {
           "name": "updated_at",

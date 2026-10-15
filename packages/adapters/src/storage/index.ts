@@ -81,6 +81,8 @@ export interface FileStorage {
   size(tenantId: string, key: string): Promise<number | null>;
   /** Primeiros bytes (para conferir o tipo pelo conteúdo). */
   readStart(tenantId: string, key: string, bytes: number): Promise<Uint8Array>;
+  /** Arquivo inteiro (até 10 MB), para anexar no WhatsApp ou no e-mail. */
+  readAll(tenantId: string, key: string): Promise<Uint8Array>;
   /** SHA-256 em hexadecimal, lendo o objeto em fluxo. */
   sha256(tenantId: string, key: string): Promise<string>;
   delete(tenantId: string, key: string): Promise<void>;
@@ -174,6 +176,12 @@ export function createFileStorage(config: StorageConfig): FileStorage {
       );
       const body = await object.Body?.transformToByteArray();
       return (body ?? new Uint8Array()).slice(0, bytes);
+    },
+
+    async readAll(tenantId, key) {
+      assertTenantKey(tenantId, key);
+      const object = await client.send(new GetObjectCommand({ Bucket, Key: key }));
+      return (await object.Body?.transformToByteArray()) ?? new Uint8Array();
     },
 
     async sha256(tenantId, key) {

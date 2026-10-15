@@ -10,7 +10,7 @@ import { fileURLToPath } from 'node:url';
 import { createDb, type Db } from './internal';
 import { templateLibrary } from './schema';
 import { uuidv7 } from 'uuidv7';
-import { JOBS, PGBOSS_SCHEMA } from './queue';
+import { JOBS, PGBOSS_SCHEMA, PLATFORM_JOBS } from './queue';
 
 const MIGRATIONS_FOLDER = fileURLToPath(new URL('../migrations', import.meta.url));
 
@@ -38,7 +38,7 @@ export async function installDatabase(migratorUrl: string): Promise<void> {
   });
   await boss.start();
   try {
-    for (const name of Object.keys(JOBS)) {
+    for (const name of [...Object.keys(JOBS), ...Object.keys(PLATFORM_JOBS)]) {
       if (!(await boss.getQueue(name))) await boss.createQueue(name);
     }
   } finally {

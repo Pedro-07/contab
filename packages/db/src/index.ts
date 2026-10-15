@@ -16,3 +16,7 @@ export * from './repositories/companies';
 export * from './repositories/contacts';
 export * from './repositories/documents';
 export * from './repositories/portal-sessions';
+export * from './repositories/channels';
+export * from './repositories/guides';
+export * from './repositories/deliveries';
+export * from './repositories/links-and-events';

@@ -213,6 +213,7 @@ CREATE TABLE "tenant_alerts" (
 --> statement-breakpoint
 ALTER TABLE "tenant_settings" ADD COLUMN "reminder_days_before" integer DEFAULT 3 NOT NULL;--> statement-breakpoint
 ALTER TABLE "tenant_settings" ADD COLUMN "delivery_hour" integer DEFAULT 9 NOT NULL;--> statement-breakpoint
+ALTER TABLE "tenant_settings" ADD COLUMN "reply_to_email" text;--> statement-breakpoint
 ALTER TABLE "documents" ADD COLUMN "send_to_client" boolean DEFAULT false NOT NULL;--> statement-breakpoint
 ALTER TABLE "channels" ADD CONSTRAINT "channels_tenant_id_tenants_id_fk" FOREIGN KEY ("tenant_id") REFERENCES "public"."tenants"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "credentials" ADD CONSTRAINT "credentials_tenant_id_tenants_id_fk" FOREIGN KEY ("tenant_id") REFERENCES "public"."tenants"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint

@@ -20,6 +20,7 @@ ALTER TABLE tenant_settings DROP CONSTRAINT IF EXISTS tenant_settings_reminder_d
 ALTER TABLE tenant_settings DROP CONSTRAINT IF EXISTS tenant_settings_delivery_hour;
 ALTER TABLE tenant_settings DROP COLUMN IF EXISTS reminder_days_before;
 ALTER TABLE tenant_settings DROP COLUMN IF EXISTS delivery_hour;
+ALTER TABLE tenant_settings DROP COLUMN IF EXISTS reply_to_email;
 DROP TYPE IF EXISTS secure_link_item;
 DROP TYPE IF EXISTS guide_source;
 DROP TYPE IF EXISTS guide_status;

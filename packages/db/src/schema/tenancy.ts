@@ -151,6 +151,8 @@ export const tenantSettings = pgTable('tenant_settings', {
   // Régua do núcleo (incremento 3): antecedência do lembrete e hora local de envio.
   reminderDaysBefore: integer().notNull().default(3),
   deliveryHour: integer().notNull().default(9),
+  // Para onde vão as respostas dos e-mails enviados em nome do escritório.
+  replyToEmail: text(),
   updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
 });
 
