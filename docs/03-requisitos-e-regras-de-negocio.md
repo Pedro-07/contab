@@ -138,6 +138,7 @@ Toda regra abaixo é aplicada no servidor. A interface só reflete o que o servi
 - **RN5 — Duplicidade de guia.** Não pode haver duas guias ativas com a mesma chave `(tenant, empresa, tipo, competência)`.
 - **RN6 — Janela de 24h.** Mensagem livre de WhatsApp só dentro de 24h da última mensagem do contato. Fora disso, só template aprovado.
 - **RN7 — Consentimento.** Campanhas e lembretes só vão para contatos com opt-in ativo no canal. Opt-out ("SAIR" ou link no e-mail) vale na hora e fica registrado.
+  - **P25 (15/10/2026):** na entrega do núcleo (guias, documentos, lembretes e honorários), o contato nasce autorizado em cada canal que tem (telefone ou e-mail). O escritório é responsável por informar o cliente; o sistema registra a origem `padrao_escritorio`, quem cadastrou e quando. O escritório pode desmarcar, e o opt-out do cliente (SAIR ou link no e-mail) vale na hora. Campanhas continuam exigindo opt-in marcado explicitamente.
 - **RN8 — Lembretes.** Guia paga não recebe lembrete. O status de pagamento é verificado imediatamente antes de cada envio.
 - **RN9 — Acesso do portal.** A pessoa do portal só vê as empresas a que foi vinculada, e só dentro do tenant do domínio acessado.
 - **RN10 — Papéis do escritório.**

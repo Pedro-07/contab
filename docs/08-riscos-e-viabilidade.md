@@ -16,7 +16,7 @@ O risco que mais preocupa é o de escopo, não o técnico. Um CRM completo no es
 | R6 | Modelo de contratação da Serpro não permite a plataforma atender vários escritórios | Média | Alto | PoC sem autenticação de procurador | PoC na semana 1 a 2; ler os termos da Serpro | Cada escritório contrata a própria Serpro |
 | R7 | Leitura de PDF falha em modelos variados de guia | Média | Médio | Mais de 10% dos PDFs indo para revisão | Coletar 50 PDFs reais (anonimizados) antes de codar; parser por modelo | Revisão manual assistida com campos pré-preenchidos |
 | R8 | Serpro instável no dia 20 | Média | Médio | Taxa de erro acima de 20% | Disjuntor, fila com retentativa, guias geradas com antecedência | Fila manual com aviso ao cliente |
-| R9 | Bloqueio do número por denúncia de spam | Baixa | Alto | Qualidade do número caindo na Meta | Opt-in, frequência limitada, templates de utilidade | Número reserva verificado |
+| R9 | Bloqueio do número por denúncia de spam | Baixa (média com a P25) | Alto | Qualidade do número caindo na Meta | Opt-in, frequência limitada, templates de utilidade | Número reserva verificado |
 | R10 | Desenvolvedor solo como ponto único de falha | Alta | Alto | Férias, doença, emprego CLT ocupando o tempo | Documentação e runbooks, infraestrutura gerenciada, alertas | Contrato com prazo de resposta realista; parceiro técnico de reserva |
 
 Riscos acrescentados com a entrega pelo WhatsApp e os honorários:

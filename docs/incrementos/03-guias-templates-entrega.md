@@ -1,6 +1,6 @@
 # Incremento 3 — Guias, templates e entrega
 
-- **Status:** proposta, aguardando aprovação do Pedro
+- **Status:** aprovado pelo Pedro em 15/10/2026, com as recomendações 1, 3 a 7 e a P25 no lugar da recomendação 2
 - **Período previsto:** 16/10/2026 a 06/11/2026 (P23, `02-escopo-mvp-e-backlog.md`, seção 14)
 - **Pronto quando:** CA7 e CA9 passando; testes negativos de isolamento de cada endpoint, webhook e job novos; definição de pronto do `CLAUDE.md`
 - **Decisões que valem aqui:** ADRs 0001 a 0008; P2, P3, P8, P9, P21 a P24; I2, I3 e I5 (resolvidas em 15/10/2026); RN1, RN5 a RN8, RN12 a RN14, RN17
@@ -40,7 +40,7 @@ da guia imediatamente antes de enviar (RN8)
 ```
 
 - **[recomendação] Anexo pelo WhatsApp:** o PDF é enviado antes à Meta (upload de mídia da Cloud API) e o template usa o ID da mídia. Assim, nenhum link público do arquivo vai para a Meta.
-- **[recomendação] Opt-in (RN7 e política da Meta):** toda mensagem iniciada pela empresa no WhatsApp exige opt-in de WhatsApp. No e-mail, a guia ou o documento do próprio cliente (mensagem transacional) sai mesmo sem opt-in, salvo opt-out; lembretes e avisos de vencida exigem opt-in de e-mail.
+- **Opt-in (P25):** o contato nasce autorizado em cada canal que tem; o escritório responde por informar o cliente. Desmarcado ou com opt-out, não sai nada naquele canal. Na importação, "não" nas colunas de autorização desmarca; a declaração da tela de importação (D2) sai.
 - **[recomendação] Remetente do e-mail:** domínio da plataforma, com o nome do escritório no remetente ("Contact Consultoria") e responder-para o e-mail do escritório. Domínio próprio do escritório (DKIM e SPF) fica para depois.
 - **Idempotência:** chave `(tenant, item, contato, canal, gatilho)` em `deliveries`; um job repetido não envia duas vezes.
 

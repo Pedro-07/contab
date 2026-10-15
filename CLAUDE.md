@@ -126,7 +126,7 @@ Detalhes na seção 5 do plano.
 - Guia com status `paga` não muda mais. DAS recalculado gera guia nova e a antiga vira `substituída`.
 - Não pode haver duas guias ativas com a mesma chave `(tenant, empresa, tipo, competência)`.
 - WhatsApp: texto livre só dentro da janela de 24 h. Fora dela, só template aprovado.
-- Lembretes e campanhas só para contatos com opt-in ativo. O pagamento é rechecado antes de cada envio.
+- Opt-in (P25): na entrega do núcleo, o contato nasce autorizado (o escritório responde por informar o cliente) e o sistema registra a origem; campanhas exigem opt-in explícito. Opt-out vale sempre e na hora. O pagamento é rechecado antes de cada envio.
 - Valores em centavos (`bigint`), datas em `timestamptz`, competência em `date` com dia 1, IDs em UUID v7.
 
 ## Definição de pronto
