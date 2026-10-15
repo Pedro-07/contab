@@ -12,14 +12,12 @@ export function ImportForm() {
     step: 'inicio',
   });
   const [file, setFile] = useState<File | null>(null);
-  const [consent, setConsent] = useState(false);
 
   function send(step: 'previa' | 'confirmar') {
     if (!file) return;
     const data = new FormData();
     data.set('file', file);
     data.set('step', step);
-    if (consent) data.set('consentDeclared', 'on');
     startTransition(() => run(data));
   }
 
@@ -40,7 +38,6 @@ export function ImportForm() {
           required
           onChange={(e) => {
             setFile(e.currentTarget.files?.[0] ?? null);
-            setConsent(false);
           }}
         />
         <button type="submit" disabled={pending || !file}>
@@ -80,17 +77,10 @@ export function ImportForm() {
           )}
           {state.preview.validLines > 0 ? (
             <>
-              <label className="check">
-                <input
-                  type="checkbox"
-                  checked={consent}
-                  onChange={(e) => setConsent(e.currentTarget.checked)}
-                />{' '}
-                Declaro que o escritório tem a autorização dos contatos marcados com &quot;sim&quot;
-                nas colunas aceita_whatsapp e aceita_email.
-              </label>
               <p className="muted">
-                Sem esta declaração, os contatos entram sem autorização e não recebem lembretes.
+                Contatos novos já entram autorizados a receber pelo WhatsApp e pelo e-mail que
+                tiverem. O escritório é responsável por avisar os clientes. Use &quot;não&quot; nas
+                colunas aceita_whatsapp e aceita_email para quem não deve receber.
               </p>
               <button type="button" disabled={pending} onClick={() => send('confirmar')}>
                 {pending ? 'Importando…' : 'Confirmar importação'}

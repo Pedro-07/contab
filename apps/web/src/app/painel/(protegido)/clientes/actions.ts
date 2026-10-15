@@ -200,9 +200,7 @@ export async function importAction(_: ImportState, formData: FormData): Promise<
   try {
     const bytes = await fileBytes(formData);
     if (formString(formData, 'step') === 'confirmar') {
-      const result = await applyCsvImport(ctx, bytes, {
-        consentDeclared: formBool(formData, 'consentDeclared'),
-      });
+      const result = await applyCsvImport(ctx, bytes);
       revalidatePath('/clientes');
       return { step: 'feito', result };
     }

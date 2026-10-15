@@ -64,6 +64,8 @@ export async function updateChannel(
       | 'status'
       | 'statusReason'
       | 'lastCheckedAt'
+      | 'webhookKeyHash'
+      | 'verifyTokenHash'
       | 'deletedAt'
     >
   >,

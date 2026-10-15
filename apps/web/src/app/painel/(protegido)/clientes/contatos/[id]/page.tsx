@@ -7,7 +7,12 @@ import { CHANNEL_LABEL, CONTACT_ROLE_LABEL, formatDateTime } from '@/lib/labels'
 import { requirePainel } from '@/server/painel';
 import { consentAction } from '../../actions';
 
-const SOURCE_LABEL = { importacao: 'importação', cadastro_manual: 'cadastro no painel' } as const;
+const SOURCE_LABEL = {
+  importacao: 'importação',
+  cadastro_manual: 'cadastro no painel',
+  padrao_escritorio: 'padrão do escritório',
+  cliente: 'pedido do cliente',
+} as const;
 
 export default async function ContatoPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;

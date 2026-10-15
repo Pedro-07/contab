@@ -44,6 +44,7 @@ import {
   POA_STATUSES,
   PREFERRED_CHANNELS,
   TAX_REGIMES,
+  type ConsentSource,
   type UserId,
 } from '@contab/domain';
 import { z } from 'zod';
@@ -204,6 +205,16 @@ const yes = z
   .optional()
   .default(false);
 
+/** Sim, não ou "não informado" (P25: não informado vale o padrão). */
+const maybe = z
+  .union([z.boolean(), z.string()])
+  .optional()
+  .transform((v): boolean | undefined => {
+    if (v === undefined || v === '') return undefined;
+    if (v === true || v === 'on' || v === 'true' || v === 'sim') return true;
+    return false;
+  });
+
 const contactSchema = z
   .object({
     name: z.string().trim().min(2, 'Informe o nome do contato.').max(200),
@@ -228,8 +239,8 @@ const contactSchema = z
     role: z.enum(CONTACT_ROLES).optional().default('outro'),
     receivesDeliveries: yes,
     portalAccess: yes,
-    whatsappOptIn: yes,
-    emailOptIn: yes,
+    whatsappOptIn: maybe,
+    emailOptIn: maybe,
   })
   .refine((c) => c.phone || c.email, 'Informe telefone ou e-mail.');
 
@@ -265,6 +276,43 @@ export async function upsertContactRecord(
   return { id: created.id, created: true };
 }
 
+/**
+ * Autorização para receber mensagens (P25). O contato novo nasce autorizado em cada canal
+ * que tem (origem padrao_escritorio). Valor informado (sim ou não) é registrado com a
+ * origem dada. Um opt-out feito pelo próprio cliente nunca é desfeito pelo escritório.
+ */
+export async function applyConsents(
+  tx: TenantTx,
+  ctx: TenantContext,
+  contact: { id: string; created: boolean },
+  wanted: { whatsapp: boolean | undefined; email: boolean | undefined; source: ConsentSource },
+): Promise<number> {
+  const current = await getContact(tx, contact.id);
+  const history = await listContactConsents(tx, contact.id);
+  const actor = actorUserId(ctx) as UserId | null;
+  let optIns = 0;
+  for (const channel of ['whatsapp', 'email'] as const) {
+    const hasAddress = channel === 'whatsapp' ? Boolean(current.phone) : Boolean(current.email);
+    if (!hasAddress) continue;
+    const explicit = wanted[channel];
+    const desired = explicit ?? (contact.created ? true : undefined);
+    if (desired === undefined) continue;
+    const isOn = Boolean(channel === 'whatsapp' ? current.whatsappOptInAt : current.emailOptInAt);
+    if (desired === isOn) continue;
+    const last = history.find((h) => h.channel === channel);
+    if (desired && last?.status === 'opt_out' && last.source === 'cliente') continue;
+    await recordConsent(tx, ctx.tenantId, {
+      contactId: contact.id,
+      channel,
+      optIn: desired,
+      source: explicit === undefined ? 'padrao_escritorio' : wanted.source,
+      actorUserId: actor,
+    });
+    if (desired) optIns++;
+  }
+  return optIns;
+}
+
 export async function addContactToCompany(
   ctx: TenantContext,
   companyId: string,
@@ -283,24 +331,11 @@ export async function addContactToCompany(
         receivesDeliveries: data.receivesDeliveries,
       });
       const actor = actorUserId(ctx) as UserId | null;
-      if (data.whatsappOptIn && data.phone) {
-        await recordConsent(tx, ctx.tenantId, {
-          contactId: contact.id,
-          channel: 'whatsapp',
-          optIn: true,
-          source: 'cadastro_manual',
-          actorUserId: actor,
-        });
-      }
-      if (data.emailOptIn && data.email) {
-        await recordConsent(tx, ctx.tenantId, {
-          contactId: contact.id,
-          channel: 'email',
-          optIn: true,
-          source: 'cadastro_manual',
-          actorUserId: actor,
-        });
-      }
+      await applyConsents(tx, ctx, contact, {
+        whatsapp: data.whatsappOptIn,
+        email: data.emailOptIn,
+        source: 'cadastro_manual',
+      });
       if (data.portalAccess) {
         await grantPortalAccess(tx, ctx.tenantId, {
           contactId: contact.id,

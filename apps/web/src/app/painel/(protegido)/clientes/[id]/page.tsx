@@ -189,12 +189,15 @@ export default async function EmpresaPage({ params }: { params: Promise<{ id: st
               <fieldset>
                 <legend>Autorizações</legend>
                 <label className="check">
-                  <input type="checkbox" name="whatsappOptIn" /> Autorizou receber WhatsApp do
-                  escritório
+                  <input type="checkbox" name="whatsappOptIn" defaultChecked /> Recebe pelo WhatsApp
                 </label>
                 <label className="check">
-                  <input type="checkbox" name="emailOptIn" /> Autorizou receber e-mail do escritório
+                  <input type="checkbox" name="emailOptIn" defaultChecked /> Recebe por e-mail
                 </label>
+                <p className="muted">
+                  O escritório é responsável por avisar o cliente. Ele pode pedir para sair a
+                  qualquer momento respondendo SAIR.
+                </p>
                 <label className="check">
                   <input type="checkbox" name="receivesDeliveries" defaultChecked /> Recebe as guias
                   e documentos desta empresa

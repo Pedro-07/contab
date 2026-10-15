@@ -47,10 +47,9 @@ test('contador importa CSV, envia documento e o worker libera', async ({ page })
   // Na segunda tentativa do CI a empresa já existe: a prévia diz "atualizada".
   await expect(page.getByText('Contatos: 1')).toBeVisible();
   await expect(page.getByText('Linha 3: CNPJ inválido.')).toBeVisible();
-  await page.getByLabel(/Declaro que o escritório tem a autorização/).check();
   await page.getByRole('button', { name: 'Confirmar importação' }).click();
   await expect(page.getByRole('status').filter({ hasText: 'Importação concluída' })).toContainText(
-    '1 autorizações registradas',
+    /[0-9]+ autorizações registradas/,
   );
 
   // Ficha da Padaria (do seed), envio de PDF pela pasta "Contrato social".

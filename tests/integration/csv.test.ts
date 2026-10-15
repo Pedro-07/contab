@@ -55,7 +55,8 @@ describe('leitura do arquivo', () => {
       cnpj: '11222333000181',
       legalName: 'Padaria "Boa", Ltda',
       regime: 'SN',
-      contact: { name: 'João', phone: '+5598990000009', whatsappOptIn: false },
+      // Coluna ausente: "não informado", vale o padrão (P25).
+      contact: { name: 'João', phone: '+5598990000009', whatsappOptIn: undefined },
     });
   });
 
@@ -122,19 +123,15 @@ describe('importação', () => {
     expect(rows).toHaveLength(0);
   });
 
-  it('sem a declaração, não grava opt-in; com ela, grava com origem importação', async () => {
+  it('grava as autorizações com a origem certa e não duplica ao importar de novo (P25)', async () => {
     const ctx = contador();
-    const first = await applyCsvImport(ctx, csv('59545785000120', '98993330001'), {
-      consentDeclared: false,
-    });
-    expect(first).toMatchObject({ companiesNew: 1, contacts: 2, optIns: 0 });
+    // Rita: "sim" nos dois canais; Sol: só e-mail, com "sim".
+    const first = await applyCsvImport(ctx, csv('59545785000120', '98993330001'));
+    expect(first).toMatchObject({ companiesNew: 1, contacts: 2, optIns: 3 });
 
-    const second = await applyCsvImport(ctx, csv('59545785000120', '98993330001'), {
-      consentDeclared: true,
-    });
-    expect(second).toMatchObject({ companiesNew: 0, companiesUpdated: 1, contacts: 2, optIns: 3 });
+    const second = await applyCsvImport(ctx, csv('59545785000120', '98993330001'));
+    expect(second).toMatchObject({ companiesNew: 0, companiesUpdated: 1, contacts: 2, optIns: 0 });
 
-    // Importar de novo não duplica empresa nem contato.
     const companies = await owner.$client.query(
       'select id from client_companies where tenant_id = $1 and cnpj = $2',
       [seed.alfa.id, '59545785000120'],
@@ -163,19 +160,57 @@ describe('importação', () => {
       [seed.alfa.id],
     );
     const text = JSON.stringify(audit.rows[0]!.metadata);
-    expect(audit.rows[0]!.metadata).toMatchObject({ empresas_atualizadas: 1, opt_ins: 3 });
+    expect(audit.rows[0]!.metadata).toMatchObject({ empresas_atualizadas: 1, opt_ins: 0 });
     for (const leaked of ['Rita', 'rita@', '98993330001', 'Importada']) {
       expect(text).not.toContain(leaked);
     }
+  });
+
+  it('em branco vale o padrão do escritório; "não" desmarca; opt-out do cliente não é desfeito', async () => {
+    const ctx = contador();
+    const file = (whats: string) =>
+      enc(
+        [
+          HEADER,
+          `35717283000171;Padrão Fictício Ltda;;SN;;Tom Fictício;98993330003;tom@exemplo.test;outro;ambos;${whats};;sim;`,
+        ].join(String.fromCharCode(10)),
+      );
+    await applyCsvImport(ctx, file(''));
+    const tom = async () =>
+      (
+        await owner.$client.query<{ id: string; w: Date | null; e: Date | null }>(
+          'select id, whatsapp_opt_in_at as w, email_opt_in_at as e from contacts where tenant_id = $1 and phone = $2',
+          [seed.alfa.id, '+5598993330003'],
+        )
+      ).rows[0]!;
+    const created = await tom();
+    expect(created.w).not.toBeNull();
+    expect(created.e).not.toBeNull();
+    const sources = await owner.$client.query<{ source: string }>(
+      'select source from contact_consents where contact_id = $1',
+      [created.id],
+    );
+    expect(sources.rows.map((r) => r.source)).toEqual(['padrao_escritorio', 'padrao_escritorio']);
+
+    // "não" na coluna desmarca.
+    await applyCsvImport(ctx, file('não'));
+    expect((await tom()).w).toBeNull();
+
+    // O cliente pediu para sair: nem "sim" do escritório reativa.
+    await owner.$client.query(
+      `insert into contact_consents (tenant_id, id, contact_id, channel, status, source)
+       values ($1, gen_random_uuid(), $2, 'whatsapp', 'opt_out', 'cliente')`,
+      [seed.alfa.id, created.id],
+    );
+    await applyCsvImport(ctx, file('sim'));
+    expect((await tom()).w).toBeNull();
   });
 
   it('importar no Alfa um CNPJ que existe no Beta não altera o Beta', async () => {
     const beta = memberCtx(seed.beta.id, seed.users.donoBeta.id, 'dono');
     await createCompany(beta, { cnpj: '86574328000137', legalName: 'Só do Beta', regime: 'LP' });
 
-    await applyCsvImport(contador(), csv('86574328000137', '98993330002'), {
-      consentDeclared: true,
-    });
+    await applyCsvImport(contador(), csv('86574328000137', '98993330002'));
 
     const { rows } = await owner.$client.query<{ tenant_id: string; legal_name: string }>(
       'select tenant_id, legal_name from client_companies where cnpj = $1',
@@ -190,16 +225,12 @@ describe('importação', () => {
   it('atendente não importa (D3)', async () => {
     const ctx = memberCtx(seed.alfa.id, seed.users.atendenteAlfa.id, 'atendente');
     await expect(previewCsvImport(ctx, enc(CSV_TEMPLATE))).rejects.toBeInstanceOf(ForbiddenError);
-    await expect(
-      applyCsvImport(ctx, enc(CSV_TEMPLATE), { consentDeclared: true }),
-    ).rejects.toBeInstanceOf(ForbiddenError);
+    await expect(applyCsvImport(ctx, enc(CSV_TEMPLATE))).rejects.toBeInstanceOf(ForbiddenError);
   });
 
   it('arquivo só com linhas ruins não importa nada', async () => {
     await expect(
-      applyCsvImport(contador(), enc(`${HEADER}\n00000000000000;X;;SN;;;;;;;;;;`), {
-        consentDeclared: false,
-      }),
+      applyCsvImport(contador(), enc(`${HEADER}\n00000000000000;X;;SN;;;;;;;;;;`)),
     ).rejects.toThrow('Nenhuma linha válida para importar.');
   });
 });
