@@ -33,6 +33,18 @@ const TENANT_TABLES = [
   'portal_sessions',
   'documents',
   'document_versions',
+  // Incremento 3
+  'channels',
+  'credentials',
+  'tenant_templates',
+  'webhook_events',
+  'deliveries',
+  'guides',
+  'guide_events',
+  'secure_links',
+  'secure_link_accesses',
+  'portal_login_codes',
+  'tenant_alerts',
 ];
 
 let app: Db;

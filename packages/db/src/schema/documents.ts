@@ -41,6 +41,8 @@ export const documents = pgTable(
     category: documentCategory().notNull(),
     title: text().notNull(),
     visibleToClient: boolean().notNull().default(true),
+    // Envia ao cliente (WhatsApp ou e-mail) quando o arquivo fica disponível (incremento 3).
+    sendToClient: boolean().notNull().default(false),
     createdByUserId: uuid(),
     createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),

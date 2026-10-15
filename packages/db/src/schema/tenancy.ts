@@ -4,6 +4,7 @@ import {
   foreignKey,
   index,
   inet,
+  integer,
   jsonb,
   pgEnum,
   pgTable,
@@ -147,6 +148,9 @@ export const tenantSettings = pgTable('tenant_settings', {
     .primaryKey()
     .references(() => tenants.id),
   timezone: text().notNull().default('America/Fortaleza'),
+  // Régua do núcleo (incremento 3): antecedência do lembrete e hora local de envio.
+  reminderDaysBefore: integer().notNull().default(3),
+  deliveryHour: integer().notNull().default(9),
   updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
 });
 
