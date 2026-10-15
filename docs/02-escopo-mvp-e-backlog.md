@@ -50,19 +50,22 @@ O plano tem três marcos:
 | Incremento / marco | Início | Fim |
 | --- | --- | --- |
 | Descoberta e PoCs | 19/10/2026 | 02/11/2026 |
-| Fundação multi-tenant | 26/10/2026 | 09/11/2026 |
-| Clientes e documentos | 02/11/2026 | 16/11/2026 |
-| Guias, templates e entrega | 09/11/2026 | 23/11/2026 |
+| Fundação multi-tenant | concluída em 14/10/2026 | |
+| Clientes e documentos | concluído em 15/10/2026 | |
+| Guias, templates e entrega | 16/10/2026 | 06/11/2026 |
+| Serpro: DAS, recálculo e pagamentos | 07/11/2026 | 23/11/2026 |
 | **Marco: entrega automática no ar (Contact)** | **23/11/2026** | |
-| Inbox, CRM e solicitações | 23/11/2026 | 14/12/2026 |
-| Serpro: DAS e recálculo | 07/12/2026 | 21/12/2026 |
-| Honorários e portal básico | 14/12/2026 | 28/12/2026 |
+| Leitura de PDF em lote (tipos assistidos) | 24/11/2026 | 07/12/2026 |
+| Inbox, CRM e solicitações | a replanejar depois do marco | |
+| Honorários e portal básico | a replanejar depois do marco | |
 | **Marco: MVP completo** | **28/12/2026** | |
 | Campanhas e automações | 04/01/2027 | 25/01/2027 |
 | Fiscal completo | 11/01/2027 | 08/02/2027 |
 | Portal com login e planos | 01/02/2027 | 22/02/2027 |
 | Segurança e piloto | 15/02/2027 | 08/03/2027 |
 | **Marco: venda a novos escritórios** | **08/03/2027** | |
+
+**Ordem revista em 15/10/2026 (P23):** a Serpro vem antes da leitura de PDF em lote, para o DAS sair sozinho já no marco de 23/11. As datas de Inbox e Honorários são revistas depois do marco; a Fundação e Clientes e documentos terminaram cerca de três semanas antes do previsto.
 
 A semana de 28/12 fica livre por causa das festas. Ela funciona como folga do MVP. Cada incremento entrega algo que dá para ver funcionando.
 
@@ -71,9 +74,10 @@ A semana de 28/12 fica livre por causa das festas. Ela funciona como folga do MV
 | Descoberta e PoCs | Serpro respondendo com o termo da Contact; mensagem de WhatsApp enviada e recebida por webhook; templates de teste aprovados; 20 PDFs reais lidos | Taxa de leitura de PDF acima de 90%; PoC Serpro concluída |
 | Fundação multi-tenant | Login por link mágico, TOTP para dono e admin, dois escritórios de teste, convites, papéis, RLS, auditoria, `security_events`, subdomínios, CI | Todos os testes negativos de isolamento passando |
 | Clientes e documentos | Importação por CSV; ficha do cliente; pastas por empresa | CA6 passando; arquivo de outro tenant inacessível |
-| Guias, templates e entrega | WhatsApp da Contact conectado e biblioteca aprovada; a contadora sobe o lote e cada cliente recebe a guia no WhatsApp com PDF, Pix e link seguro; régua ativa | CA3 e CA7 passando; piloto com 5 clientes |
+| Guias, templates e entrega | WhatsApp do escritório conectado e biblioteca aprovada; guia publicada (avulsa, como contingência) chega no WhatsApp com PDF, Pix e link seguro; régua ativa | CA7 passando |
 | Inbox, CRM e solicitações | Histórico de envios por cliente; conversa em tempo real; solicitações e tarefas | CA4 e CA5 passando; inbox abaixo de 3 s |
-| Serpro: DAS e recálculo | Atualizar guia gera DAS novo e o envia; confirmação de pagamento | CA2 passando; disjuntor testado |
+| Serpro: DAS, recálculo e pagamentos | DAS do MEI e do Simples gerado sozinho e enviado; atualizar guia gera DAS novo; pagamento confirmado para a régua e envia o comprovante | CA2 passando; disjuntor testado; piloto com 5 clientes |
+| Leitura de PDF em lote | A contadora sobe ICMS, ISS, FGTS e PGFN em lote; o sistema lê, vincula e envia; o que não casa vai para revisão | CA3 passando; leitura acima de 90% |
 | Honorários e portal básico | Contratos de honorários; boleto e Pix na conta da Contact; régua e baixa automática; portal básico com lista e download | CA8 passando; um mês real de honorários cobrado |
 | Campanhas e automações | Disparo segmentado; regras personalizadas do escritório | 5.000 mensagens sem atrasar o inbox nem a régua |
 | Fiscal completo | Parcelamentos, DCTFWeb, declaração de faturamento assinada, Radar de Débitos | Declaração aceita por um banco real |
