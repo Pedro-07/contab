@@ -13,6 +13,9 @@ const config: NextConfig = {
   // pg, pg-boss e pino rodam só no servidor, sem empacotar.
   serverExternalPackages: ['pg', 'pg-boss', 'pino'],
   poweredByHeader: false,
+  // A importação de CSV aceita até 1 MB (incremento 2); o padrão das server actions é 1 MB
+  // contando o envelope do formulário.
+  experimental: { serverActions: { bodySizeLimit: '2mb' } },
   async headers() {
     return [
       {

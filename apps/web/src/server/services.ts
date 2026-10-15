@@ -3,6 +3,7 @@
  * carregar o módulo mais de uma vez em desenvolvimento.
  */
 import { createEmailSender } from '@contab/adapters/email';
+import { createFileStorage, type FileStorage } from '@contab/adapters/storage';
 import { createAuth, type Auth } from '@contab/auth';
 import { serverEnv } from '@contab/config/env';
 import { getDb } from '@contab/db/global';
@@ -10,7 +11,7 @@ import { createBoss } from '@contab/db/queue';
 import { nextCookies } from 'better-auth/next-js';
 import type { PgBoss } from 'pg-boss';
 
-type Services = { auth?: Auth; boss?: Promise<PgBoss> };
+type Services = { auth?: Auth; boss?: Promise<PgBoss>; storage?: FileStorage };
 const store = globalThis as typeof globalThis & { __contab?: Services };
 const services: Services = (store.__contab ??= {});
 
@@ -37,4 +38,10 @@ export function getBoss(): Promise<PgBoss> {
     services.boss = boss.start().then(() => boss);
   }
   return services.boss;
+}
+
+/** Storage dos documentos (R2 em produção; SeaweedFS em dev e testes). */
+export function getStorage(): FileStorage {
+  services.storage ??= createFileStorage(serverEnv());
+  return services.storage;
 }

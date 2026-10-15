@@ -50,12 +50,14 @@ label {
 }
 input,
 select,
+textarea,
 button {
   font: inherit;
   min-height: 44px;
 }
 input,
-select {
+select,
+textarea {
   width: 100%;
   padding: 0.5rem;
   border: 1px solid #767676;
@@ -162,4 +164,83 @@ td {
   height: 1px;
   overflow: hidden;
   clip: rect(0 0 0 0);
+}
+/* Incremento 2: clientes e documentos */
+a.button {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  background: var(--accent);
+  color: #fff;
+  text-decoration: none;
+}
+a.button.secondary {
+  background: #fff;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+}
+input[type='checkbox'] {
+  width: auto;
+  min-height: 0;
+  margin-right: 0.5rem;
+}
+label.check {
+  display: flex;
+  align-items: flex-start;
+  font-weight: 400;
+}
+fieldset {
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  margin: 0.75rem 0;
+}
+legend {
+  font-weight: 600;
+}
+details {
+  margin: 0.75rem 0;
+}
+summary {
+  cursor: pointer;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  color: var(--accent);
+  font-weight: 600;
+}
+.filters {
+  display: grid;
+  gap: 0 0.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  align-items: end;
+  margin-bottom: 1rem;
+}
+.facts {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.25rem 1rem;
+}
+.facts dt {
+  font-weight: 600;
+}
+.facts dd {
+  margin: 0;
+}
+ul.docs {
+  list-style: none;
+  padding: 0;
+}
+h3 {
+  font-size: 1rem;
+  margin: 1rem 0 0.25rem;
+}
+@media (max-width: 40rem) {
+  .facts {
+    grid-template-columns: 1fr;
+  }
+  .facts dd {
+    margin-bottom: 0.5rem;
+  }
 }
