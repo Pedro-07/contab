@@ -23,6 +23,12 @@ const serverEnvSchema = z
     STORAGE_ACCESS_KEY_ID: z.string().min(1),
     STORAGE_SECRET_ACCESS_KEY: z.string().min(1),
     STORAGE_REGION: z.string().default('auto'),
+    // WhatsApp (incremento 3): cloud em produção; fake em dev, testes e CI.
+    WHATSAPP_PROVIDER: z.enum(['cloud', 'fake']).default('fake'),
+    WHATSAPP_GRAPH_VERSION: z
+      .string()
+      .regex(/^v\d+\.\d+$/)
+      .default('v23.0'),
     LOG_LEVEL: z
       .enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'])
       .default('info'),
@@ -54,6 +60,13 @@ const serverEnvSchema = z
         code: 'custom',
         path: ['KMS_KEY_ID'],
         message: 'KMS_KEY_ID e KMS_REGION obrigatórios com aws-kms',
+      });
+    }
+    if (env.APP_ENV === 'production' && env.WHATSAPP_PROVIDER !== 'cloud') {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['WHATSAPP_PROVIDER'],
+        message: 'produção exige cloud',
       });
     }
     // Chave local só serve para dados fictícios (P17).
