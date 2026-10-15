@@ -19,7 +19,8 @@
     "db:migrate": "pnpm --filter @contab/db migrate",
     "db:seed": "pnpm --filter @contab/db seed",
     "tenant:create": "pnpm --filter @contab/worker tenant:create",
-    "storage:setup": "pnpm --filter @contab/worker storage:setup"
+    "storage:setup": "pnpm --filter @contab/worker storage:setup",
+    "portal:dev-login": "pnpm --filter @contab/worker portal:dev-login"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",

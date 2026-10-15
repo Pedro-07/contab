@@ -1,4 +1,5 @@
 import { createEmailSender } from '@contab/adapters/email';
+import { createFileStorage } from '@contab/adapters/storage';
 import { serverEnv } from '@contab/config/env';
 import { logger } from '@contab/config/logger';
 import { createBoss } from '@contab/db/queue';
@@ -11,7 +12,12 @@ boss.on('error', (error) => logger.error({ err: error.message }, 'erro no pg-bos
 
 await boss.start();
 
-for (const job of createJobs({ email: createEmailSender(env), painelUrl: env.BETTER_AUTH_URL })) {
+const deps = {
+  email: createEmailSender(env),
+  painelUrl: env.BETTER_AUTH_URL,
+  storage: createFileStorage(env),
+};
+for (const job of createJobs(deps)) {
   await boss.work(job.name, async ([item]) => {
     if (!item) return;
     try {
