@@ -26,3 +26,16 @@ Consulta mais de 830 portais públicos (Receita, Sefaz, prefeituras, Sintegra et
 2. Só consultas por identificador público (CNPJ, CPF, inscrição estadual). Nada que exija certificado ou senha do cliente do escritório (regra do `CLAUDE.md`).
 3. Adaptador em `packages/adapters` com timeout, retentativa, idempotência e custo por tenant; limite pelos `entitlements`.
 4. Entra na lista pública de suboperadores (LGPD) e passa pela revisão do advogado (termos de uso dos portais).
+
+## Outras fontes avaliadas (15/10/2026)
+
+Conferência de um levantamento externo sobre hubs fiscais e APIs oficiais:
+
+| Fonte ou afirmação | O que confirmamos |
+| --- | --- |
+| Emissão da guia do FGTS Digital por API (Infosimples ou governo) | **Não confirmado.** O [Manual do FGTS Digital v1.50 (mar/2026)](https://www.gov.br/trabalho-e-emprego/pt-br/servicos/empregador/fgtsdigital/manual-e-documentacao-tecnica/manual-do-orientacao-do-fgts-digital-versao-1-50-20-03-2026.pdf) descreve só a emissão pelo portal, com login do empregador ou procurador. Automatizar exigiria credencial do cliente: proibido pelo `CLAUDE.md`. |
+| DARE do ICMS por API | Só São Paulo oferece ([COAD](https://www.coad.com.br/home/noticias-detalhe/118760/sp-permite-que-empresas-emitam-documento-de-arrecadacao-por-meio-de-seus-proprios-sistemas)). O Maranhão emite pelo dareweb, sem API pública ([COAD](https://www.coad.com.br/home/noticias-detalhe/109354/sefaz-ma-disponibiliza-dare-com-nova-interface-e-melhor-desempenho)). |
+| ISS pela API da NFS-e Nacional | Informa alíquotas, não emite a guia municipal. |
+| FiscalAPI, dbdireto, LegisWeb | Mesma categoria da Infosimples (consultas, certidões, alíquotas). Não avaliados em detalhe; valem as mesmas condições acima. |
+
+**Consequência:** ICMS-MA, ISS de São Luís e FGTS continuam no fluxo assistido (leitura de PDF). Para o SaaS, fica a ideia de um conector de DARE por estado, só onde houver API oficial (hoje, São Paulo), depois do MVP.
