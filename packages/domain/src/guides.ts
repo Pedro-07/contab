@@ -136,9 +136,9 @@ export function parseBarcodeLine(input: string): string | null {
 /** CRC16-CCITT (polinômio 0x1021, início 0xFFFF), usado no Pix copia e cola. */
 function crc16(payload: string): string {
   let crc = 0xffff;
-  for (const byte of new TextEncoder().encode(payload)) {
-    crc ^= byte << 8;
-    for (let i = 0; i < 8; i++) {
+  for (let i = 0; i < payload.length; i++) {
+    crc ^= payload.charCodeAt(i) << 8;
+    for (let bit = 0; bit < 8; bit++) {
       crc = crc & 0x8000 ? ((crc << 1) ^ 0x1021) & 0xffff : (crc << 1) & 0xffff;
     }
   }
@@ -149,6 +149,8 @@ function crc16(payload: string): string {
 export function parsePixCode(input: string): string | null {
   const code = input.trim();
   if (!code.startsWith('000201') || code.length < 30 || code.length > 600) return null;
+  // O BR Code só tem caracteres ASCII; o CRC é calculado byte a byte.
+  if (!/^[ -~]+$/.test(code)) return null;
   const at = code.lastIndexOf('6304');
   if (at !== code.length - 8) return null;
   return crc16(code.slice(0, at + 4)) === code.slice(at + 4).toUpperCase() ? code : null;
