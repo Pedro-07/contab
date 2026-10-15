@@ -2,7 +2,6 @@ import { listPortalDocuments } from '@contab/core';
 import { DOCUMENT_CATEGORIES, formatCnpj } from '@contab/domain';
 import { CATEGORY_LABEL, formatDate } from '@/lib/labels';
 import { getPortalState, getPortalTenant } from '@/server/portal';
-import { signOutPortalAction, switchCompanyAction } from './actions';
 
 /**
  * Portal do cliente (incremento 2). O escritório vem do subdomínio; a pessoa, do cookie.
@@ -40,7 +39,7 @@ export default async function PortalPage({
         <strong>{tenant.name}</strong>
         <span className="spacer" />
         <span className="muted">{state.contactName}</span>
-        <form action={signOutPortalAction}>
+        <form method="post" action="/sair">
           <button type="submit" className="secondary">
             Sair
           </button>
@@ -58,7 +57,7 @@ export default async function PortalPage({
         )}
 
         {state.companies.length > 1 && (
-          <form action={switchCompanyAction} className="card">
+          <form method="post" action="/empresa" className="card">
             <label htmlFor="companyId">Empresa</label>
             <select id="companyId" name="companyId" defaultValue={active?.companyId ?? ''} required>
               <option value="" disabled>

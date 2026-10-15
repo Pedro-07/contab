@@ -44,7 +44,8 @@ test('contador importa CSV, envia documento e o worker libera', async ({ page })
     buffer: Buffer.from(CSV, 'utf8'),
   });
   await page.getByRole('button', { name: 'Ver prévia' }).click();
-  await expect(page.getByText('Empresas novas: 1')).toBeVisible();
+  // Na segunda tentativa do CI a empresa já existe: a prévia diz "atualizada".
+  await expect(page.getByText('Contatos: 1')).toBeVisible();
   await expect(page.getByText('Linha 3: CNPJ inválido.')).toBeVisible();
   await page.getByLabel(/Declaro que o escritório tem a autorização/).check();
   await page.getByRole('button', { name: 'Confirmar importação' }).click();
@@ -69,7 +70,7 @@ test('contador importa CSV, envia documento e o worker libera', async ({ page })
   });
   await form.getByRole('button', { name: 'Enviar documento' }).click();
   // O worker confere o arquivo e a página se atualiza sozinha.
-  await expect(page.getByRole('link', { name: 'Baixar contrato.pdf' })).toBeVisible({
+  await expect(page.getByRole('link', { name: 'Baixar contrato.pdf' }).first()).toBeVisible({
     timeout: 30_000,
   });
 });
@@ -79,7 +80,7 @@ test('atendente vê a ficha, mas não altera', async ({ page }) => {
   await page.goto('/clientes');
   await expect(page.getByRole('link', { name: 'Nova empresa' })).toHaveCount(0);
   await page.getByRole('link', { name: 'Padaria', exact: true }).click();
-  await expect(page.getByRole('link', { name: 'Baixar contrato.pdf' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Baixar contrato.pdf' }).first()).toBeVisible();
   await expect(page.getByRole('form', { name: 'Enviar documento' })).toHaveCount(0);
   await expect(page.getByText('Adicionar contato')).toHaveCount(0);
 });
@@ -94,13 +95,19 @@ test('CA6: João escolhe a empresa no portal e só vê a empresa ativa', async (
   await expect(page.getByRole('heading', { name: 'Padaria', level: 1 })).toBeVisible();
 
   const download = page.waitForEvent('download');
-  await page.getByRole('link', { name: 'Contrato social E2E' }).click();
+  await page.getByRole('link', { name: 'Contrato social E2E' }).first().click();
   expect((await download).suggestedFilename()).toBe('contrato.pdf');
 
   await page.getByLabel('Empresa').selectOption({ label: 'Loja' });
   await page.getByRole('button', { name: 'Trocar de empresa' }).click();
   await expect(page.getByRole('heading', { name: 'Loja', level: 1 })).toBeVisible();
   await expect(page.getByRole('link', { name: 'Contrato social E2E' })).toHaveCount(0);
+
+  // Sair revoga a sessão do portal.
+  await page.getByRole('button', { name: 'Sair' }).click();
+  await expect(page.getByText('Entre pelo link que o escritório enviou')).toBeVisible();
+  await page.goto('http://alfa.localhost:3000/');
+  await expect(page.getByText('Entre pelo link que o escritório enviou')).toBeVisible();
 });
 
 test('link do portal usado duas vezes não entra', async ({ page }) => {
