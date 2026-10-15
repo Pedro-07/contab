@@ -53,9 +53,10 @@ export function checkDeclaredFile(input: { contentType: string; size: number }):
 /** Nome de arquivo seguro para mostrar e para o Content-Disposition. */
 export function safeFileName(name: string): string {
   const base = name.split(/[\\/]/).pop() ?? '';
-  const cleaned = base
-    .normalize('NFC')
-    .replace(/[\u0000-\u001f\u007f"<>|:*?]/g, '')
+  // Tira caracteres de controle e os que quebram nome de arquivo ou cabeçalho.
+  const cleaned = [...base.normalize('NFC')]
+    .filter((c) => c >= ' ' && c !== '\x7f' && !'"<>|:*?'.includes(c))
+    .join('')
     .trim()
     .slice(0, 120);
   return cleaned || 'documento';

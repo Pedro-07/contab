@@ -7,7 +7,9 @@ import { getDb, schema, type Db, type Schema } from './internal';
 /** Quem está agindo dentro de um tenant. */
 export type Actor =
   | { type: 'member'; userId: UserId; role: Role }
-  | { type: 'system'; jobName: string; jobId: string };
+  | { type: 'system'; jobName: string; jobId: string }
+  /** Pessoa do portal, já resolvida pela sessão presa ao subdomínio (incremento 2). */
+  | { type: 'contact'; contactId: string };
 
 /** Contexto obrigatório para qualquer acesso a dados de tenant (CLAUDE.md, regra 2). */
 export type TenantContext = {
