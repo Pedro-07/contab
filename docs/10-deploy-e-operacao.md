@@ -61,3 +61,27 @@ A migração 0001 exige que o papel de login `app` já exista e recusa se ele fo
 2. Conferir: `select rolsuper, rolbypassrls from pg_roles where rolname = 'app'` deve devolver `false, false`.
 3. `DATABASE_URL` usa o papel `app`; `DATABASE_MIGRATOR_URL` usa o dono do banco. Só o pipeline de migração conhece a segunda.
 4. Os papéis sem login `security_reader` e `invitation_resolver` são criados pela própria migração.
+
+### Storage dos documentos no Cloudflare R2 (incremento 2)
+
+Os documentos ficam num bucket privado, sempre sob `tenants/{tenant_id}/`. O navegador envia o arquivo direto para o R2 por URL assinada de 5 minutos, então o bucket precisa de uma regra de CORS. Antes do primeiro deploy com documentos:
+
+1. Criar o bucket privado (sem domínio público e sem acesso público).
+2. Criar um token de API do R2 com permissão de leitura e escrita **só nesse bucket**. Guardar o Access Key ID e o Secret nas variáveis `STORAGE_ACCESS_KEY_ID` e `STORAGE_SECRET_ACCESS_KEY` da Vercel e do Railway.
+3. `STORAGE_ENDPOINT=https://<id-da-conta>.r2.cloudflarestorage.com`, `STORAGE_BUCKET=<nome>`, `STORAGE_REGION=auto`.
+4. Regra de CORS do bucket (painel do R2 › Settings › CORS):
+   ```json
+   [
+     {
+       "AllowedOrigins": ["https://app.<domínio>"],
+       "AllowedMethods": ["PUT"],
+       "AllowedHeaders": ["content-type", "content-disposition"],
+       "MaxAgeSeconds": 300
+     }
+   ]
+   ```
+   Só o painel envia arquivos. Downloads são navegação comum e não precisam de CORS.
+5. Ligar o versionamento de objetos, se disponível, e a cópia semanal para outra conta (seção "Backup e recuperação").
+6. Rodar `pnpm db:migrate` antes do deploy: ele cria a fila `document.verify`, que o worker precisa.
+
+Em desenvolvimento e no CI, o storage é o SeaweedFS do `docker-compose.yml` e `pnpm storage:setup` cria o bucket e a regra de CORS. Não rode esse comando contra o R2: ele se recusa em staging e produção.

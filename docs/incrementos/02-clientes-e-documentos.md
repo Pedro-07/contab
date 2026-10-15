@@ -1,6 +1,6 @@
 # Incremento 2 — Clientes e documentos
 
-- **Status:** aprovado pelo Pedro em 14/10/2026, com D1 a D4 e as recomendações das seções 2, 4 e 6
+- **Status:** implementado em 15/10/2026 no branch `feat/clientes-documentos` (aprovado em 14/10/2026, com D1 a D4 e as recomendações das seções 2, 4 e 6)
 - **Período previsto:** 02/11/2026 a 16/11/2026 (`02-escopo-mvp-e-backlog.md`, seção 14)
 - **Pronto quando:** CA6 passando; arquivo de outro tenant inacessível; definição de pronto do `CLAUDE.md`
 - **Decisões que valem aqui:** ADRs 0001 a 0004; P3, P4, P8, P16, P20; decisões D1 a D4 abaixo
@@ -40,7 +40,7 @@ Todas as tabelas são do tenant: `tenant_id NOT NULL`, RLS com a política padr�
 | `company_contacts` | `company_id`, `contact_id`, `role` (`socio`, `financeiro`, `outro`), `receives_deliveries` (bool), `created_at`, `deleted_at` | `(tenant_id, company_id, contact_id)` único; estrangeiras compostas para as duas pontas |
 | `client_access` | `contact_id`, `company_id`, `granted_by`, `created_at`, `revoked_at` | acesso ao portal (RN9); `(tenant_id, contact_id, company_id)` único **[plano]** |
 | `portal_sessions` | `token_hash`, `contact_id`, `active_company_id`, `expires_at`, `created_at`, `revoked_at` | `token_hash` único; `(tenant_id, contact_id, active_company_id)` → `client_access`; expira em 7 dias |
-| `documents` | `company_id`, `category`, `title`, `current_version_id`, `visible_to_client` (padrão `true`), `created_by`, `created_at`, `deleted_at` | categoria da lista fixa abaixo |
+| `documents` | `company_id`, `category`, `title`, `visible_to_client` (padrão `true`), `created_by`, `created_at`, `deleted_at` | categoria da lista fixa abaixo |
 | `document_versions` | `document_id`, `version` (1, 2, …), `storage_key`, `original_name`, `content_type`, `size_bytes`, `sha256`, `status` (`aguardando_envio`, `verificando`, `disponivel`, `rejeitado`), `rejection_reason`, `uploaded_by`, `created_at` | `(tenant_id, document_id, version)` único; `storage_key` começa com `tenants/{tenant_id}/` (CHECK) |
 
 - **[recomendação]** O plano preliminar (seção 9) tem `portal_users` separado de `contacts`. Proponho que a pessoa do portal seja o próprio contato: o login será pelo telefone (P3), que já fica em `contacts`. Uma tabela a mais duplicaria o telefone e criaria dois cadastros da mesma pessoa. Se aprovado, atualizo `05-modelo-de-dados.md`.
@@ -150,3 +150,15 @@ docs/05-modelo-de-dados.md, docs/10-deploy-e-operacao.md  ajustes (portal_users,
 ## 11. Execução (registro da implementação)
 
 - **SeaweedFS no lugar do MinIO (14/10/2026).** A imagem `minio/minio` não está mais disponível no Docker Hub nem no quay.io sem login. O SeaweedFS é compatível com S3, confere a assinatura das URLs e aplica regra de CORS por bucket, como o R2. Em produção nada muda (R2).
+- **Sem `current_version_id` em `documents`.** A versão atual é a maior versão `disponivel`. Assim não existe estrangeira circular entre as duas tabelas, e uma versão recusada nunca vira a atual.
+- **Nome de download gravado no objeto.** O SeaweedFS ignora o `response-content-disposition` da URL de GET. A URL de envio passou a assinar também o `content-disposition`, e o navegador manda os cabeçalhos devolvidos pelo servidor. Funciona igual no R2.
+- **Ator `contact` no `TenantContext`** e o valor `contact` em `audit_actor_type`, para as ações da pessoa do portal.
+- **Server actions com até 2 MB** (`next.config.ts`), para caber o CSV de 1 MB com o envelope do formulário.
+- **Verificação:** 171 testes Vitest (unitários, integração e isolamento, incluindo os 10 da seção 8) e 8 E2E em 360 px, todos verdes em 15/10/2026.
+
+### Pendências
+
+- Lista de clientes real da Contact, para conferir o formato do CSV (seção 10).
+- Bucket R2 e regra de CORS em staging e produção (runbook em `10-deploy-e-operacao.md`).
+- A entrada de desenvolvimento do portal (`/entrar-dev/...` e `pnpm portal:dev-login`) sai quando o login por código no WhatsApp chegar.
+- Versões com envio não concluído (`aguardando_envio`) ficam guardadas; uma limpeza periódica pode entrar com a rotina de retenção (LGPD).
