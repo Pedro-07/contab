@@ -129,6 +129,8 @@ Toda regra abaixo é aplicada no servidor. A interface só reflete o que o servi
   - `rascunho → publicada → paga`
   - `publicada → vencida → substituída`
   - `publicada → cancelada`
+  - **Pagamento sempre vale (I5, 15/10/2026):** confirmado o pagamento (Serpro ou baixa manual auditada), qualquer guia que não esteja `cancelada` vai para `paga`, inclusive `vencida` ou `substituída`. Se a guia paga era uma substituída, a guia ativa que a substituiu vira `cancelada`, a régua para e o escritório recebe um alerta.
+  - Guia gerada pela Serpro nasce `publicada`. Só a guia avulsa (envio manual) passa por `rascunho`.
   - Uma guia paga não volta a nenhum outro status.
 - **RN2 — Recálculo automático.** Só vale para DAS (Simples e MEI) vencido e não pago. A nova guia substitui a anterior e guarda o vínculo de origem. Limite: 3 recálculos por guia por dia.
 - **RN3 — Tipos assistidos.** FGTS, ICMS-MA, ISS e PGFN nunca chamam API externa. "Atualizar" cria um pedido na fila do escritório.

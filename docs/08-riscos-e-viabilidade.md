@@ -50,10 +50,10 @@ Encontradas na revisão de 14/10/2026. Não bloqueiam a Fundação. Cada uma dev
 | # | Inconsistência | Onde aparece | Resolver antes de |
 | --- | --- | --- | --- |
 | I1 | Quem assina a declaração de faturamento: "e-CPF A1 do contador (PAdES)" ou o e-CNPJ do escritório, localmente. Um A1 no servidor contradiz o ADR 0006 | 04 (seção 10), 07 (seção 11) | Fiscal completo |
-| I2 | Webhook do WhatsApp: URL e verify token por tenant (CLAUDE.md) ou mapeamento pelo `phone_number_id` (seção 7). As variáveis `META_APP_SECRET` e `META_WEBHOOK_VERIFY_TOKEN` globais do `.env.example` parecem ser para o Embedded Signup | CLAUDE.md, 04, `.env.example` | Guias, templates e entrega |
-| I3 | Tabela `templates` (por tenant) parece substituída por `template_library` + `tenant_templates` (P9) | 05 | Guias, templates e entrega |
+| I2 | **Resolvida em 15/10/2026:** os dois modos. Conexão manual: endereço de webhook próprio e secreto por conexão, que identifica o escritório e o app secret para conferir a assinatura. Embedded Signup: endereço único do app, com o escritório identificado pelo `phone_number_id`. Nos dois, o `phone_number_id` da mensagem precisa pertencer à conexão, senão é recusado e registrado. | CLAUDE.md, 04, `.env.example` | — |
+| I3 | **Resolvida em 15/10/2026:** só `template_library` (plataforma) + `tenant_templates` (status por escritório). A tabela `templates` saiu do modelo. | 05 | — |
 | I4 | `deals` "com valor" sugere funil de vendas, mas P4 tira a prospecção do escopo. Os funis são só de processos internos? | 05, 03 | Inbox, CRM e solicitações |
-| I5 | RN1 não prevê `vencida → paga` (cliente paga a guia vencida sem recalcular) nem diz se a guia gerada pela Serpro passa por `rascunho` | 03 (RN1) | Guias, templates e entrega |
+| I5 | **Resolvida em 15/10/2026:** pagamento sempre vale; guia da Serpro nasce publicada. Ver RN1. | 03 (RN1) | — |
 | I6 | O MVP já tem portal básico com login, mas existe o incremento pós-MVP "Portal com login e planos". Falta definir a diferença | 02 | Honorários e portal básico |
 | I7 | Quantidade de PDFs de exemplo: 10 a 20 (`fixtures/guias/LEIA-ME.txt`), 20 (seção 14) ou 50 (R7) | 02, 08 | Descoberta e PoCs |
 | I8 | Detalhes de texto: "quatro frentes" com cinco itens (seção 1); "nove módulos" com 11 linhas (seção 4); declarações de IR citadas na LGPD sem estar no escopo | 00, 03, 07 | Quando o tema for tocado. (O provedor do KMS, que também estava aqui, foi resolvido pela P17: AWS KMS.) |

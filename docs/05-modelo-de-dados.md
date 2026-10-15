@@ -35,7 +35,6 @@ São cerca de 30 tabelas em seis grupos. Escopo **global** significa sem tenant.
 | Mensagens | `channels` | tenant | número de WhatsApp ou domínio de e-mail; `phone_number_id` único global (mapeia o webhook para o tenant) |
 | Mensagens | `conversations` | tenant | contato, canal, atendente, status, início da janela de 24 h |
 | Mensagens | `messages` | tenant | direção, tipo, conteúdo, anexos, status da Meta; `(tenant_id, provider_message_id)` único |
-| Mensagens | `templates` | tenant | nome, idioma, categoria, status de aprovação na Meta |
 | Mensagens | `campaigns`, `campaign_recipients` | tenant | segmento, agendamento, limite de envio, status por destinatário |
 | Mensagens | `automations`, `automation_runs` | tenant | gatilho, condições, ações (JSON validado); execuções com resultado |
 | Plataforma | `webhook_events` | tenant | ID externo único, payload, processado em |
