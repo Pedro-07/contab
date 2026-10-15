@@ -1,6 +1,6 @@
 # Incremento 3 — Guias, templates e entrega
 
-- **Status:** aprovado pelo Pedro em 15/10/2026, com as recomendações 1, 3 a 7 e a P25 no lugar da recomendação 2
+- **Status:** implementado em 15/10/2026 no branch `feat/guias-entrega` (aprovado em 15/10/2026, com as recomendações 1, 3 a 7 e a P25 no lugar da recomendação 2)
 - **Período previsto:** 16/10/2026 a 06/11/2026 (P23, `02-escopo-mvp-e-backlog.md`, seção 14)
 - **Pronto quando:** CA7 e CA9 passando; testes negativos de isolamento de cada endpoint, webhook e job novos; definição de pronto do `CLAUDE.md`
 - **Decisões que valem aqui:** ADRs 0001 a 0008; P2, P3, P8, P9, P21 a P24; I2, I3 e I5 (resolvidas em 15/10/2026); RN1, RN5 a RN8, RN12 a RN14, RN17
@@ -164,3 +164,21 @@ e2e/tests/guias-entrega.spec.ts
 - **[pendente] Meta Business da Contact** verificado e WABA conectado, para o piloto.
 - **Templates na Meta:** a aprovação pode levar de horas a dias e textos podem ser rejeitados. Mitigação: textos de utilidade sem promoção e variações de reserva (R11).
 - **Prazo:** é o maior incremento até aqui. Se apertar, o login do portal por código vai para logo depois do marco, porque o link seguro já cobre o caso principal (P22).
+
+## 12. Execução (registro da implementação)
+
+- **Campos a mais na migração 0003:** `channels.app_id` (a Meta exige um PDF de exemplo enviado pela API de upload do app para aprovar template com documento no cabeçalho) e `tenant_settings.reply_to_email` (para onde vão as respostas dos e-mails).
+- **Funções do webhook (I2):** `channel_by_webhook_key` e `channel_by_phone_number`, `SECURITY DEFINER` do papel `channel_resolver`, no mesmo padrão da `invitation_lookup`. A URL única do Embedded Signup ainda não tem rota: entra com a aprovação de Tech Provider.
+- **Um link seguro por mensagem**, e não um por guia: como só o hash do token é guardado, cada envio (publicação, lembrete, vencida) gera o próprio link, todos encerrados quando a guia é paga ou substituída.
+- **Mensagens recebidas:** só o sinal de opt-out é guardado; o texto não vai para o banco nem para o log (o inbox é outro incremento).
+- **Despacho da régua:** `regua.dispatch` é um job da plataforma (sem tenant) agendado a cada 15 min; enfileira um `regua.tenant` por escritório com `singletonKey` + `singletonSeconds`.
+- **WhatsApp simulado no Mailpit:** em dev e nos testes de navegador, cada mensagem simulada é copiada como e-mail para `<telefone>@whatsapp.simulado`, para ver o que teria saído. Nunca acontece com `WHATSAPP_PROVIDER=cloud`.
+- **Descadastro do e-mail em dois passos:** a página pergunta e o botão confirma, para leitores de e-mail que abrem links sozinhos não descadastrarem ninguém.
+- **Defeitos achados pelos testes e corrigidos:** erro temporário da Meta tratado como definitivo; aviso de template pausado não reconhecido pelo nome; URL do webhook (mostrada uma vez) escondida depois de conectar.
+- **Verificação:** 254 testes Vitest e 11 E2E em 360 px (dev e build de produção), verdes em 15/10/2026.
+
+### Pendências
+
+- Testar o adaptador real com o número de teste do app de desenvolvedor da Meta (o CI usa o simulado).
+- Conectar o WhatsApp da Contact quando o Meta Business dela estiver verificado.
+- Rota do webhook único do Embedded Signup, quando sair a aprovação de Tech Provider.

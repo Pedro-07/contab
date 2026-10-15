@@ -4,7 +4,8 @@
   "type": "module",
   "exports": {
     "./define-job": "./src/define-job.ts",
-    "./jobs": "./src/jobs/index.ts"
+    "./jobs": "./src/jobs/index.ts",
+    "./jobs/platform": "./src/jobs/platform.ts"
   },
   "scripts": {
     "dev": "tsx watch --env-file-if-exists=../../.env src/index.ts",

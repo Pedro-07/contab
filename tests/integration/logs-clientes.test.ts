@@ -36,7 +36,7 @@ describe('logs sem conteúdo (10)', () => {
       'cnpj;razao_social;regime;contato_nome;contato_telefone;contato_email',
       '64.104.355/0001-03;Empresa Secreta Ltda;SN;Pessoa Secreta;(98) 99777-1234;secreta@exemplo.test',
     ].join('\n');
-    await applyCsvImport(ctx, new TextEncoder().encode(csv), { consentDeclared: true });
+    await applyCsvImport(ctx, new TextEncoder().encode(csv));
     await uploadTestDocument(ctx, boss, {
       companyId: seed.companies.padaria.id,
       title: 'Título Secreto',

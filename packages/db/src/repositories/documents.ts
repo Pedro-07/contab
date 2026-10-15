@@ -77,6 +77,7 @@ export async function insertDocument(
     category: DocumentCategory;
     title: string;
     visibleToClient: boolean;
+    sendToClient?: boolean;
     createdByUserId: UserId | null;
   },
 ): Promise<DocumentRow> {

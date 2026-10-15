@@ -192,10 +192,14 @@ describe('cadastro', () => {
     await setContactConsent(ctx, rows[0]!.id, 'whatsapp', false);
     const profile = await getContactProfile(ctx, rows[0]!.id);
     expect(profile.contact.whatsappOptInAt).toBeNull();
-    expect(profile.consents.map((c) => [c.status, c.source])).toEqual([
+    expect(
+      profile.consents.filter((c) => c.channel === 'whatsapp').map((c) => [c.status, c.source]),
+    ).toEqual([
       ['opt_out', 'cadastro_manual'],
       ['opt_in', 'cadastro_manual'],
     ]);
+    // E-mail não informado no formulário: vale o padrão do escritório (P25).
+    expect(profile.consents.find((c) => c.channel === 'email')?.source).toBe('padrao_escritorio');
   });
 
   it('o mesmo telefone em outra empresa reaproveita o contato', async () => {

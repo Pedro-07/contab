@@ -3,7 +3,7 @@
  * - Uma linha por contato; CNPJ repetido junta os contatos na mesma empresa.
  * - Separador `;` ou `,`; UTF-8 ou Windows-1252 (Excel em português).
  * - Linhas com erro não entram; as válidas entram numa única transação.
- * - Opt-in (D2) só com a declaração marcada.
+ * - Autorização (P25): coluna em branco vale o padrão do contato novo; "não" desmarca.
  * O conteúdo do arquivo nunca vai para log nem para a auditoria.
  */
 import {
@@ -12,7 +12,6 @@ import {
   insertCompany,
   linkContact,
   recordAudit,
-  recordConsent,
   updateCompany,
   withTenant,
   type TenantContext,
@@ -30,7 +29,12 @@ import {
   type UserId,
 } from '@contab/domain';
 import { z } from 'zod';
-import { ClientInputError, requireClientEditor, upsertContactRecord } from './clients';
+import {
+  applyConsents,
+  ClientInputError,
+  requireClientEditor,
+  upsertContactRecord,
+} from './clients';
 import { actorUserId } from './guard';
 
 export const CSV_MAX_BYTES = 1024 * 1024;
@@ -134,8 +138,9 @@ export type CsvRow = {
     email: string | null;
     role: ContactRole;
     preferredChannel: PreferredChannel;
-    whatsappOptIn: boolean;
-    emailOptIn: boolean;
+    /** undefined: coluna em branco, vale o padrão (P25). */
+    whatsappOptIn: boolean | undefined;
+    emailOptIn: boolean | undefined;
     receivesDeliveries: boolean;
     portalAccess: boolean;
   } | null;
@@ -157,7 +162,10 @@ function parseRow(
   line: number,
 ): CsvRow | CsvError {
   const fail = (message: string): CsvError => ({ line, message });
-  const flag = (column: (typeof CSV_COLUMNS)[number], fallback: boolean) => {
+  const flag = <F extends boolean | undefined>(
+    column: (typeof CSV_COLUMNS)[number],
+    fallback: F,
+  ): boolean | F | null => {
     const v = get(column).toLowerCase();
     if (v === '') return fallback;
     if (YES.has(v)) return true;
@@ -198,14 +206,14 @@ function parseRow(
   if (!isOneOf(PREFERRED_CHANNELS, channel))
     return fail('Canal preferido deve ser whatsapp, email ou ambos.');
 
-  const whatsappOptIn = flag('aceita_whatsapp', false);
-  const emailOptIn = flag('aceita_email', false);
+  const whatsappOptIn = flag('aceita_whatsapp', undefined);
+  const emailOptIn = flag('aceita_email', undefined);
   const receivesDeliveries = flag('recebe_envios', true);
   const portalAccess = flag('acesso_portal', false);
   if ([whatsappOptIn, emailOptIn, receivesDeliveries, portalAccess].includes(null))
     return fail('Use "sim" ou "não" nas colunas de autorização.');
-  if (whatsappOptIn && !phone) return fail('Aceita WhatsApp sem telefone.');
-  if (emailOptIn && !rawEmail) return fail('Aceita e-mail sem e-mail.');
+  if (whatsappOptIn === true && !phone) return fail('Aceita WhatsApp sem telefone.');
+  if (emailOptIn === true && !rawEmail) return fail('Aceita e-mail sem e-mail.');
 
   return {
     ...base,
@@ -215,8 +223,8 @@ function parseRow(
       email: rawEmail || null,
       role,
       preferredChannel: channel,
-      whatsappOptIn: whatsappOptIn!,
-      emailOptIn: emailOptIn!,
+      whatsappOptIn: whatsappOptIn as boolean | undefined,
+      emailOptIn: emailOptIn as boolean | undefined,
       receivesDeliveries: receivesDeliveries!,
       portalAccess: portalAccess!,
     },
@@ -304,7 +312,6 @@ export type CsvImportResult = CsvPreview & { optIns: number };
 export async function applyCsvImport(
   ctx: TenantContext,
   bytes: Uint8Array,
-  options: { consentDeclared: boolean },
 ): Promise<CsvImportResult> {
   await requireClientEditor(ctx);
   const { rows, errors } = readCsv(bytes);
@@ -355,20 +362,12 @@ export async function applyCsvImport(
         receivesDeliveries: c.receivesDeliveries,
       });
       contactsCount++;
-      if (options.consentDeclared) {
-        for (const channel of ['whatsapp', 'email'] as const) {
-          const wants = channel === 'whatsapp' ? c.whatsappOptIn : c.emailOptIn;
-          if (!wants) continue;
-          await recordConsent(tx, ctx.tenantId, {
-            contactId: contact.id,
-            channel,
-            optIn: true,
-            source: 'importacao',
-            actorUserId: actor,
-          });
-          optIns++;
-        }
-      }
+      // P25: em branco vale o padrão (autorizado no contato novo); "não" desmarca.
+      optIns += await applyConsents(tx, ctx, contact, {
+        whatsapp: c.whatsappOptIn,
+        email: c.emailOptIn,
+        source: 'importacao',
+      });
       if (c.portalAccess) {
         await grantPortalAccess(tx, ctx.tenantId, {
           contactId: contact.id,
@@ -388,7 +387,6 @@ export async function applyCsvImport(
         contatos: contactsCount,
         opt_ins: optIns,
         linhas_com_erro: errors.length,
-        declaracao_consentimento: options.consentDeclared,
       },
     });
 

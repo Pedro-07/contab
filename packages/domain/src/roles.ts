@@ -36,6 +36,16 @@ export function canManageDocuments(role: Role): boolean {
   return canEditClients(role);
 }
 
+/** Conexões (WhatsApp e, depois, Receita e cobrança): dono e admin (incremento 3). */
+export function canManageConnections(role: Role): boolean {
+  return role === 'dono' || role === 'admin';
+}
+
+/** Guias: dono, admin e contador cadastram, publicam e dão baixa (RN10). */
+export function canManageGuides(role: Role): boolean {
+  return canEditClients(role);
+}
+
 /** Só o dono convida ou promove outro dono. */
 export function canGrantRole(actor: Role, granted: Role): boolean {
   if (!canManageMembers(actor)) return false;

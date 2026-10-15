@@ -64,3 +64,55 @@ export {
   switchPortalCompany,
   type PortalState,
 } from './portal';
+export { portalOriginFrom, type DeliveryDeps } from './delivery-deps';
+export {
+  connectWhatsApp,
+  getWhatsAppStatus,
+  hashSecret,
+  syncTemplates,
+  testWhatsAppConnection,
+  type ConnectInput,
+  type ConnectResult,
+} from './whatsapp-connection';
+export {
+  applyGuidePayment,
+  cancelGuide,
+  confirmGuidePdf,
+  createGuide,
+  getGuideDetail,
+  getGuidePdfUrl,
+  listTenantGuides,
+  markGuidePaid,
+  publishGuide,
+  requestGuidePdfUpload,
+  type GuideFormInput,
+} from './guides';
+export {
+  applyTemplateStatus,
+  applyWhatsAppStatus,
+  emailOptOutToken,
+  hashLinkToken,
+  planDeliveries,
+  sendDelivery,
+  templateFor,
+} from './deliveries';
+export { runRegua, type ReguaResult } from './regua';
+export {
+  getSecureLinkPdfUrl,
+  openSecureLink,
+  optOutEmailByLink,
+  type SecureLinkView,
+} from './secure-links';
+export {
+  isOptOutText,
+  processWebhookEvent,
+  receiveWhatsAppWebhook,
+  verifyWhatsAppSubscription,
+} from './webhooks';
+export { requestPortalCode, verifyPortalCode } from './portal-login';
+export {
+  getDeliverySettings,
+  listTenantAlerts,
+  resolveTenantAlert,
+  saveDeliverySettings,
+} from './alerts-settings';

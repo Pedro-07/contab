@@ -6,3 +6,7 @@ export * from './clients';
 export * from './cnpj';
 export * from './phone';
 export * from './files';
+export * from './guides';
+export * from './regua';
+export * from './delivery-channels';
+export * from './templates';

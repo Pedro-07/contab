@@ -10,3 +10,10 @@ export async function getTenantSettings(tx: TenantTx) {
   const [row] = await tx.select().from(tenantSettings);
   return row ?? null;
 }
+
+export async function updateDeliverySettings(
+  tx: TenantTx,
+  settings: { reminderDaysBefore: number; deliveryHour: number; replyToEmail: string | null },
+): Promise<void> {
+  await tx.update(tenantSettings).set({ ...settings, updatedAt: new Date() });
+}

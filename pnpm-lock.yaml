@@ -319,6 +319,9 @@ importers:
       '@contab/config':
         specifier: workspace:*
         version: link:../config
+      '@contab/domain':
+        specifier: workspace:*
+        version: link:../domain
       nodemailer:
         specifier: 10.1.1
         version: 10.1.1

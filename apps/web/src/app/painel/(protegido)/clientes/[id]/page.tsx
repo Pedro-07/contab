@@ -59,6 +59,11 @@ export default async function EmpresaPage({ params }: { params: Promise<{ id: st
         {COMPANY_STATUS_LABEL[company.status]}
       </p>
 
+      <p className="row">
+        <a href={`/guias?empresa=${company.id}`}>Ver guias</a>
+        {canDocs && <a href={`/guias/nova?empresa=${company.id}`}>Nova guia avulsa</a>}
+      </p>
+
       <section aria-labelledby="dados">
         <h2 id="dados">Dados da empresa</h2>
         <dl className="facts">
@@ -189,12 +194,15 @@ export default async function EmpresaPage({ params }: { params: Promise<{ id: st
               <fieldset>
                 <legend>Autorizações</legend>
                 <label className="check">
-                  <input type="checkbox" name="whatsappOptIn" /> Autorizou receber WhatsApp do
-                  escritório
+                  <input type="checkbox" name="whatsappOptIn" defaultChecked /> Recebe pelo WhatsApp
                 </label>
                 <label className="check">
-                  <input type="checkbox" name="emailOptIn" /> Autorizou receber e-mail do escritório
+                  <input type="checkbox" name="emailOptIn" defaultChecked /> Recebe por e-mail
                 </label>
+                <p className="muted">
+                  O escritório é responsável por avisar o cliente. Ele pode pedir para sair a
+                  qualquer momento respondendo SAIR.
+                </p>
                 <label className="check">
                   <input type="checkbox" name="receivesDeliveries" defaultChecked /> Recebe as guias
                   e documentos desta empresa

@@ -47,6 +47,7 @@ export function UploadForm({
               category: String(data.get('category')) as (typeof DOCUMENT_CATEGORIES)[number],
               title: String(data.get('title') ?? ''),
               visibleToClient: data.get('visibleToClient') === 'on',
+              sendToClient: data.get('sendToClient') === 'on',
             }),
         fileName: file.name,
         contentType: file.type,
@@ -90,6 +91,9 @@ export function UploadForm({
           <label className="check">
             <input type="checkbox" name="visibleToClient" defaultChecked /> Visível para o cliente
             no portal
+          </label>
+          <label className="check">
+            <input type="checkbox" name="sendToClient" /> Enviar ao cliente (WhatsApp ou e-mail)
           </label>
         </>
       )}

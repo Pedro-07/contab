@@ -83,10 +83,20 @@ export const PNG_BYTES = new Uint8Array([
 
 /** Roda o job document.verify como o worker faria. */
 export async function runVerifyJob(tenantId: string, versionId: string) {
+  const { createCipher } = await import('@contab/adapters/crypto');
+  const { createFakeProvider } = await import('@contab/adapters/whatsapp');
   const job = createJobs({
     email: { send: async () => undefined },
     painelUrl: 'http://app.localhost:3000',
     storage: testStorage(),
+    boss: undefined as never,
+    whatsapp: createFakeProvider(),
+    cipher: createCipher({
+      CRYPTO_PROVIDER: 'local',
+      CRYPTO_LOCAL_KEY: process.env.CRYPTO_LOCAL_KEY!,
+    }),
+    portalOrigin: (slug) => `http://${slug}.localhost:3000`,
+    linkSecret: process.env.BETTER_AUTH_SECRET!,
   }).find((j) => j.name === 'document.verify')!;
   await job.run({ id: randomUUID(), data: { tenantId, versionId } });
 }

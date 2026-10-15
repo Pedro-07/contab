@@ -22,7 +22,6 @@ import {
 } from '@contab/core';
 import { ForbiddenError } from '@contab/db';
 import { revalidatePath } from 'next/cache';
-import { redirect } from 'next/navigation';
 import { formBool, formString, runPainelAction, type ActionResult } from '@/server/actions';
 import { requirePainel } from '@/server/painel';
 import { getBoss, getStorage } from '@/server/services';
@@ -52,8 +51,7 @@ export async function createCompanyAction(
     id = (await createCompany(ctx, companyInput(formData))).id;
     return 'Empresa cadastrada.';
   });
-  if (result?.ok) redirect(`/clientes/${id}`);
-  return result;
+  return result?.ok ? { ...result, redirectTo: `/clientes/${id}` } : result;
 }
 
 export async function editCompanyAction(
@@ -200,9 +198,7 @@ export async function importAction(_: ImportState, formData: FormData): Promise<
   try {
     const bytes = await fileBytes(formData);
     if (formString(formData, 'step') === 'confirmar') {
-      const result = await applyCsvImport(ctx, bytes, {
-        consentDeclared: formBool(formData, 'consentDeclared'),
-      });
+      const result = await applyCsvImport(ctx, bytes);
       revalidatePath('/clientes');
       return { step: 'feito', result };
     }

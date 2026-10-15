@@ -63,6 +63,8 @@ const uploadSchema = z.object({
   contentType: z.string().max(200),
   size: z.number().int(),
   visibleToClient: z.boolean().optional().default(true),
+  // Envia ao cliente quando o arquivo fica disponível (incremento 3).
+  sendToClient: z.boolean().optional().default(false),
 });
 
 export type UploadRequest = z.input<typeof uploadSchema>;
@@ -98,6 +100,7 @@ export async function requestDocumentUpload(
           category: data.category,
           title,
           visibleToClient: data.visibleToClient,
+          sendToClient: data.sendToClient && data.visibleToClient,
           createdByUserId: uploader,
         });
         documentId = doc.id;
@@ -167,6 +170,7 @@ export async function verifyDocumentVersion(
   ctx: TenantContext,
   storage: FileStorage,
   versionId: string,
+  boss?: PgBoss,
 ): Promise<VerifyResult> {
   let version;
   try {
@@ -213,6 +217,16 @@ export async function verifyDocumentVersion(
     resourceId: version.documentId,
     metadata: { versao: version.version },
   });
+  // Entrega automática do documento marcado "enviar ao cliente" (RN13). A chave de
+  // idempotência das entregas faz só a primeira versão disponível ser enviada.
+  const doc = await getDocument(tx, version.documentId).catch(() => null);
+  if (boss && doc?.sendToClient && doc.visibleToClient) {
+    await enqueue(boss, ctx, tx, 'delivery.plan', {
+      itemType: 'documento',
+      itemId: doc.id,
+      trigger: 'publicacao',
+    });
+  }
   return 'disponivel';
 }
 

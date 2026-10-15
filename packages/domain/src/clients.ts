@@ -19,7 +19,13 @@ export type PreferredChannel = (typeof PREFERRED_CHANNELS)[number];
 export const CONSENT_CHANNELS = ['whatsapp', 'email'] as const;
 export type ConsentChannel = (typeof CONSENT_CHANNELS)[number];
 
-export const CONSENT_SOURCES = ['importacao', 'cadastro_manual'] as const;
+/** padrao_escritorio: autorização por padrão na entrega do núcleo (P25). */
+export const CONSENT_SOURCES = [
+  'importacao',
+  'cadastro_manual',
+  'padrao_escritorio',
+  'cliente',
+] as const;
 export type ConsentSource = (typeof CONSENT_SOURCES)[number];
 
 /** Pastas fixas da empresa (recomendação aprovada, seção 2 do plano do incremento). */

@@ -79,6 +79,37 @@ export async function lookupInvitation(
   return row ? { tenantId: asTenantId(row.tenant_id), invitationId: row.invitation_id } : null;
 }
 
+/**
+ * Escritório da conexão de WhatsApp de um webhook (I2), pelas funções SECURITY DEFINER da
+ * migração 0003: pelo hash da chave secreta da URL ou pelo phone_number_id.
+ */
+export async function resolveWhatsAppChannel(
+  by: { webhookKeyHash: string } | { phoneNumberId: string },
+  db: Db = getDb(),
+): Promise<{ tenantId: TenantId; channelId: string } | null> {
+  const result =
+    'webhookKeyHash' in by
+      ? await db.execute<{ tenant_id: string; channel_id: string }>(
+          sql`select tenant_id, channel_id from channel_by_webhook_key(${by.webhookKeyHash})`,
+        )
+      : await db.execute<{ tenant_id: string; channel_id: string }>(
+          sql`select tenant_id, channel_id from channel_by_phone_number(${by.phoneNumberId})`,
+        );
+  const row = result.rows[0];
+  return row ? { tenantId: asTenantId(row.tenant_id), channelId: row.channel_id } : null;
+}
+
+/** Escritórios ativos, para o despacho da régua (job da plataforma, sem dado de tenant). */
+export async function listActiveTenantIds(db: Db = getDb()): Promise<TenantId[]> {
+  const rows = await db
+    .select({ id: tenants.id })
+    .from(tenants)
+    .where(
+      and(isNull(tenants.deletedAt), sql`${tenants.status} in ('trial', 'active', 'past_due')`),
+    );
+  return rows.map((r) => asTenantId(r.id));
+}
+
 // ---------------------------------------------------------------------------
 // Sessões (campos nossos na tabela do Better Auth)
 // ---------------------------------------------------------------------------

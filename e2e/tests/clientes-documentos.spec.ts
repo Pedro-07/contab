@@ -47,10 +47,9 @@ test('contador importa CSV, envia documento e o worker libera', async ({ page })
   // Na segunda tentativa do CI a empresa já existe: a prévia diz "atualizada".
   await expect(page.getByText('Contatos: 1')).toBeVisible();
   await expect(page.getByText('Linha 3: CNPJ inválido.')).toBeVisible();
-  await page.getByLabel(/Declaro que o escritório tem a autorização/).check();
   await page.getByRole('button', { name: 'Confirmar importação' }).click();
   await expect(page.getByRole('status').filter({ hasText: 'Importação concluída' })).toContainText(
-    '1 autorizações registradas',
+    /[0-9]+ autorizações registradas/,
   );
 
   // Ficha da Padaria (do seed), envio de PDF pela pasta "Contrato social".
@@ -105,9 +104,9 @@ test('CA6: João escolhe a empresa no portal e só vê a empresa ativa', async (
 
   // Sair revoga a sessão do portal.
   await page.getByRole('button', { name: 'Sair' }).click();
-  await expect(page.getByText('Entre pelo link que o escritório enviou')).toBeVisible();
+  await expect(page.getByText('As guias e os documentos chegam')).toBeVisible();
   await page.goto('http://alfa.localhost:3000/');
-  await expect(page.getByText('Entre pelo link que o escritório enviou')).toBeVisible();
+  await expect(page.getByText('As guias e os documentos chegam')).toBeVisible();
 });
 
 test('link do portal usado duas vezes não entra', async ({ page }) => {
