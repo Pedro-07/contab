@@ -48,6 +48,7 @@ Não existe `01-descoberta-e-indicadores.md`: a descoberta (hipóteses e indicad
 | Tema | Arquivo |
 | --- | --- |
 | O que o Integra Contador (Serpro) oferece | [pesquisas/serpro-integra-contador.md](pesquisas/serpro-integra-contador.md) |
+| Infosimples (consultas a portais públicos): fora do MVP | [pesquisas/infosimples.md](pesquisas/infosimples.md) |
 
 ## Incrementos
 
