@@ -9,7 +9,7 @@ import { connectWhatsApp, receiveWhatsAppWebhook, type DeliveryDeps } from '@con
 import type { TenantContext } from '@contab/db';
 import { JOBS, type JobName } from '@contab/db/queue';
 import { createJobs } from '@contab/worker/jobs';
-import { randomUUID } from 'node:crypto';
+import { randomBytes, randomUUID } from 'node:crypto';
 import type { PgBoss } from 'pg-boss';
 import { testStorage } from './helpers';
 
@@ -66,7 +66,8 @@ export async function drainJobs(deps: TestDeps, tenantId: string, rounds = 10): 
   return ran;
 }
 
-export const TEST_APP_SECRET = '0123456789abcdef0123456789abcdef';
+// Gerado a cada execução: valor fictício, sem literal que pareça segredo.
+export const TEST_APP_SECRET = randomBytes(16).toString('hex');
 
 /** Conecta o WhatsApp simulado no escritório e aprova os templates. */
 export async function connectFakeWhatsApp(

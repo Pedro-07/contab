@@ -1,2 +1,4 @@
 # Chave falsa de teste (bytes 0..31 em sequência), usada só em testes locais e no CI.
 db4a68d0420e8a035ba2e2990425bd10fa51f3f3:.env.test:generic-api-key:11
+# App secret fictício dos testes (já trocado por valor gerado a cada execução).
+1e603df3bbe5c121dd8efa4ddbf5d20a0f677875:tests/integration/delivery-helpers.ts:generic-api-key:69
