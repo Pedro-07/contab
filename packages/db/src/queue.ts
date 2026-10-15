@@ -46,7 +46,7 @@ export type JobPayload<N extends JobName> = z.infer<(typeof JOBS)[N]>;
 
 export function createBoss(
   connectionString: string,
-  options: { supervise?: boolean } = {},
+  options: { supervise?: boolean; schedule?: boolean } = {},
 ): PgBoss {
   return new PgBoss({
     connectionString,
@@ -55,7 +55,8 @@ export function createBoss(
     migrate: false,
     createSchema: false,
     supervise: options.supervise ?? false,
-    schedule: false,
+    // Só o worker liga o agendador (despacho da régua).
+    schedule: options.schedule ?? false,
   });
 }
 
@@ -97,7 +98,7 @@ export async function enqueueForTenant<N extends JobName>(
   tenantId: string,
   name: N,
   payload: Omit<JobPayload<N>, 'tenantId'>,
-  options: { singletonKey?: string } = {},
+  options: { singletonKey?: string; singletonSeconds?: number } = {},
 ): Promise<string | null> {
   const data = JOBS[name].parse({ ...payload, tenantId });
   return boss.send(name, data, { retryLimit: 3, retryBackoff: true, ...options });

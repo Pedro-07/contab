@@ -64,7 +64,7 @@ export {
   switchPortalCompany,
   type PortalState,
 } from './portal';
-export { type DeliveryDeps } from './delivery-deps';
+export { portalOriginFrom, type DeliveryDeps } from './delivery-deps';
 export {
   connectWhatsApp,
   getWhatsAppStatus,

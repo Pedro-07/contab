@@ -1,5 +1,5 @@
 import type { TenantId } from '@contab/domain';
-import { and, asc, eq, isNull, sql } from 'drizzle-orm';
+import { and, asc, eq, isNull, or, sql } from 'drizzle-orm';
 import { uuidv7 } from 'uuidv7';
 import { NotFoundError } from '../errors';
 import { channels, credentials, templateLibrary, tenantTemplates } from '../schema';
@@ -175,9 +175,12 @@ export async function setTemplateStatusByMeta(
   status: TenantTemplate['status'],
   reason: string | null,
 ): Promise<TenantTemplate | null> {
-  const match = meta.templateId
-    ? eq(tenantTemplates.metaTemplateId, meta.templateId)
-    : eq(tenantTemplates.metaName, meta.name ?? '');
+  // Pelo ID da Meta ou pelo nome (único no WABA do escritório).
+  const match = or(
+    ...(meta.templateId ? [eq(tenantTemplates.metaTemplateId, meta.templateId)] : []),
+    ...(meta.name ? [eq(tenantTemplates.metaName, meta.name)] : []),
+  );
+  if (!match) return null;
   const [row] = await tx
     .update(tenantTemplates)
     .set({ status, reason, updatedAt: new Date() })

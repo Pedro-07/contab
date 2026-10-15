@@ -30,6 +30,12 @@ export type DeliveryDeps = {
   now?: () => Date;
 };
 
+/** Origem do portal de cada escritório: mesmo protocolo do painel, host <slug>.<domínio>. */
+export function portalOriginFrom(painelUrl: string, baseDomain: string): (slug: string) => string {
+  const protocol = new URL(painelUrl).protocol;
+  return (slug) => `${protocol}//${slug}.${baseDomain}`;
+}
+
 export function nowOf(deps: Pick<DeliveryDeps, 'now'>): Date {
   return deps.now ? deps.now() : new Date();
 }
