@@ -85,3 +85,18 @@ Os documentos ficam num bucket privado, sempre sob `tenants/{tenant_id}/`. O nav
 6. Rodar `pnpm db:migrate` antes do deploy: ele cria a fila `document.verify`, que o worker precisa.
 
 Em desenvolvimento e no CI, o storage é o SeaweedFS do `docker-compose.yml` e `pnpm storage:setup` cria o bucket e a regra de CORS. Não rode esse comando contra o R2: ele se recusa em staging e produção.
+
+### Conectar o WhatsApp de um escritório (conexão manual, incremento 3)
+
+Até a aprovação de Tech Provider, cada escritório conecta o próprio número pela API oficial (P2, P21). Feito junto com o escritório no onboarding:
+
+1. No Meta Business do escritório (verificado), criar a conta do WhatsApp Business (WABA) e registrar o número. O número não pode estar em uso no aplicativo do WhatsApp.
+2. Em Meta for Developers, criar um app do tipo Business, adicionar o produto WhatsApp e ligar a WABA.
+3. Criar um usuário do sistema com acesso à WABA e gerar um **token permanente** com as permissões `whatsapp_business_messaging` e `whatsapp_business_management`.
+4. Anotar o **ID do app**, o **app secret** (Configurações › Básico), o **WABA ID** e o **Phone Number ID**.
+5. No painel, **Conexões › WhatsApp**: preencher os cinco campos e conectar. A tela mostra **uma vez** a URL de retorno e o token de verificação.
+6. No app da Meta, em WhatsApp › Configuração › Webhook: colar a URL e o token, verificar e assinar os campos `messages` e `message_template_status_update`.
+7. Esperar a Meta aprovar os modelos de mensagem (a tela mostra o status). Enquanto não aprovarem, os envios saem por e-mail.
+8. Em produção, `WHATSAPP_PROVIDER=cloud` (a configuração recusa outro valor).
+
+Para trocar o token ou o número, conectar de novo: a URL do webhook e o token de verificação também mudam, e é preciso atualizar no app da Meta.

@@ -99,7 +99,8 @@ test('admin conecta o WhatsApp, publica a guia e o cliente recebe com Pix e link
   await page.getByRole('button', { name: 'Enviar PDF' }).click();
   await expect(page.getByRole('link', { name: 'Baixar PDF' })).toBeVisible();
   await page.getByRole('button', { name: 'Publicar e enviar ao cliente' }).click();
-  await expect(page.getByRole('status').filter({ hasText: 'Guia publicada' })).toBeVisible();
+  // A seção de publicar some; a situação da guia passa a "Publicada".
+  await expect(page.getByText('Publicada', { exact: true }).first()).toBeVisible();
 
   // O worker envia; a mensagem simulada chega e a linha do tempo mostra o envio.
   const text = await simulatedWhatsApp('guia_disponivel_v1');
@@ -129,8 +130,7 @@ test('o escritório dá baixa e o link passa a dizer que está paga', async ({ p
   await page.getByText('Registrar pagamento').click();
   await page.getByLabel('Como o pagamento foi confirmado?').fill('comprovante no WhatsApp');
   await page.getByRole('button', { name: 'Confirmar pagamento' }).click();
-  await expect(page.getByRole('status').filter({ hasText: 'Pagamento registrado' })).toBeVisible();
-  await page.reload();
+  // O formulário some quando a guia vira paga; a situação confirma a baixa.
   await expect(page.getByText('Paga', { exact: true }).first()).toBeVisible();
   expect(await simulatedWhatsApp('pagamento_confirmado_v1')).toContain('Padaria');
 
