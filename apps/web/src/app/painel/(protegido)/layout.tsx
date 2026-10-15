@@ -12,6 +12,7 @@ export default async function ProtegidoLayout({ children }: { children: ReactNod
       <nav className="top" aria-label="Principal">
         <strong>{organization.name}</strong>
         <a href="/">Início</a>
+        <a href="/clientes">Clientes</a>
         {canManageMembers(organization.role) && <a href="/membros">Membros</a>}
         {canManageMembers(organization.role) && <a href="/convites">Convites</a>}
         {canViewAudit(organization.role) && <a href="/auditoria">Auditoria</a>}

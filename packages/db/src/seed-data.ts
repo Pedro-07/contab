@@ -5,12 +5,20 @@
 import { asTenantId, asUserId, type Role, type TenantId, type UserId } from '@contab/domain';
 import { getDb, type Db } from './internal';
 import { findTenantBySlug, findUserByEmail, insertTenant, insertUser } from './global';
+import { findCompanyByCnpj, insertCompany } from './repositories/companies';
+import {
+  findContactByPhone,
+  grantPortalAccess,
+  insertContact,
+  linkContact,
+} from './repositories/contacts';
 import { upsertMembership } from './repositories/memberships';
 import { createTenantSettings } from './repositories/tenant-settings';
 import { withTenant, type TenantContext } from './tenant';
 
 export type SeedTenant = { id: TenantId; slug: string; name: string };
 export type SeedUser = { id: UserId; email: string };
+export type SeedCompany = { id: string; cnpj: string; legalName: string };
 
 export type SeedResult = {
   alfa: SeedTenant;
@@ -19,6 +27,9 @@ export type SeedResult = {
     'donoAlfa' | 'adminAlfa' | 'contadorAlfa' | 'atendenteAlfa' | 'donoBeta' | 'duplo',
     SeedUser
   >;
+  /** Incremento 2: João é sócio da Padaria e da Loja (Alfa) e acessa as duas no portal (CA6). */
+  companies: { padaria: SeedCompany; loja: SeedCompany; betaPadaria: SeedCompany };
+  contacts: { joao: { id: string; phone: string }; joaoBeta: { id: string; phone: string } };
 };
 
 const TENANTS = [
@@ -67,7 +78,62 @@ export async function seed(db: Db = getDb()): Promise<SeedResult> {
     }
   }
 
-  return { alfa: tenants.alfa, beta: tenants.beta, users };
+  const clients = await seedClients(db, tenants.alfa.id, tenants.beta.id);
+  return { alfa: tenants.alfa, beta: tenants.beta, users, ...clients };
+}
+
+const JOAO_PHONE = '+5598990000001';
+
+async function seedClients(db: Db, alfaId: TenantId, betaId: TenantId) {
+  const company = (tenantId: TenantId, cnpj: string, legalName: string, tradeName: string) =>
+    withTenant(
+      seedContext(tenantId),
+      async (tx) => {
+        const row =
+          (await findCompanyByCnpj(tx, cnpj)) ??
+          (await insertCompany(tx, tenantId, { cnpj, legalName, tradeName, regime: 'SN' }));
+        return { id: row.id, cnpj: row.cnpj, legalName: row.legalName };
+      },
+      db,
+    );
+  const padaria = await company(alfaId, '11222333000181', 'Padaria Fictícia Ltda', 'Padaria');
+  const loja = await company(alfaId, '44555666000181', 'Loja Fictícia Ltda', 'Loja');
+  // Mesmo CNPJ da Padaria em outro escritório: não pode haver conflito nem mistura.
+  const betaPadaria = await company(
+    betaId,
+    '11222333000181',
+    'Padaria (cliente do Beta)',
+    'Padaria Beta',
+  );
+
+  const contact = (tenantId: TenantId, companyIds: string[]) =>
+    withTenant(
+      seedContext(tenantId),
+      async (tx) => {
+        const row =
+          (await findContactByPhone(tx, JOAO_PHONE)) ??
+          (await insertContact(tx, tenantId, { name: 'João Fictício', phone: JOAO_PHONE }));
+        for (const companyId of companyIds) {
+          await linkContact(tx, tenantId, {
+            companyId,
+            contactId: row.id,
+            role: 'socio',
+            receivesDeliveries: true,
+          });
+          await grantPortalAccess(tx, tenantId, {
+            contactId: row.id,
+            companyId,
+            grantedByUserId: null,
+          });
+        }
+        return { id: row.id, phone: JOAO_PHONE };
+      },
+      db,
+    );
+  const joao = await contact(alfaId, [padaria.id, loja.id]);
+  const joaoBeta = await contact(betaId, [betaPadaria.id]);
+
+  return { companies: { padaria, loja, betaPadaria }, contacts: { joao, joaoBeta } };
 }
 
 function seedContext(tenantId: TenantId): TenantContext {

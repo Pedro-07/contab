@@ -17,6 +17,12 @@ const serverEnvSchema = z
     CRYPTO_LOCAL_KEY: z.string().optional(),
     KMS_KEY_ID: z.string().optional(),
     KMS_REGION: z.string().optional(),
+    // Storage S3: R2 em produção; SeaweedFS em dev, testes e CI (incremento 2).
+    STORAGE_ENDPOINT: z.url(),
+    STORAGE_BUCKET: z.string().min(3),
+    STORAGE_ACCESS_KEY_ID: z.string().min(1),
+    STORAGE_SECRET_ACCESS_KEY: z.string().min(1),
+    STORAGE_REGION: z.string().default('auto'),
     LOG_LEVEL: z
       .enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'])
       .default('info'),

@@ -152,6 +152,7 @@ cp .env.example .env            # e ajuste os valores
 docker compose up -d --wait     # Postgres local + Mailpit (http://localhost:8025)
 pnpm db:migrate                 # migrações + RLS + fila (papel owner)
 pnpm db:seed                    # 2 tenants fictícios (Alfa e Beta)
+pnpm storage:setup              # bucket local (SeaweedFS) e CORS do painel
 pnpm dev                        # web (http://app.localhost:3000) + worker
 pnpm lint && pnpm typecheck && pnpm test   # inclui os testes de isolamento
 pnpm test:e2e                   # Playwright, 360 px

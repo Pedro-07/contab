@@ -21,6 +21,21 @@ export function canViewAudit(role: Role): boolean {
   return role === 'dono' || role === 'admin';
 }
 
+/** Todos os papéis veem empresas, contatos e documentos (D3). */
+export function canViewClients(_role: Role): boolean {
+  return true;
+}
+
+/** Dono, admin e contador cadastram, editam e importam; o atendente só vê (D3). */
+export function canEditClients(role: Role): boolean {
+  return role === 'dono' || role === 'admin' || role === 'contador';
+}
+
+/** Mesma regra para subir e apagar documentos (D3, RN10). */
+export function canManageDocuments(role: Role): boolean {
+  return canEditClients(role);
+}
+
 /** Só o dono convida ou promove outro dono. */
 export function canGrantRole(actor: Role, granted: Role): boolean {
   if (!canManageMembers(actor)) return false;

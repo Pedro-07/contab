@@ -14,6 +14,8 @@ export const tenantJobPayload = z.object({ tenantId: z.uuid() });
 /** Catálogo de filas. As filas são criadas na migração (o papel app não cria tabelas). */
 export const JOBS = {
   'invitation.send-email': tenantJobPayload.extend({ invitationId: z.uuid() }),
+  // Confere tamanho, tipo pelo conteúdo e hash do arquivo enviado (incremento 2).
+  'document.verify': tenantJobPayload.extend({ versionId: z.uuid() }),
 } as const;
 
 export type JobName = keyof typeof JOBS;

@@ -1,0 +1,11 @@
+{
+  "identities": [
+    {
+      "name": "dev",
+      "credentials": [
+        { "accessKey": "dev-storage-key", "secretKey": "dev-storage-secret-nao-real" }
+      ],
+      "actions": ["Admin", "Read", "Write", "List", "Tagging"]
+    }
+  ]
+}

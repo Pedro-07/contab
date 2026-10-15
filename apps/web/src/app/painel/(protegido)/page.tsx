@@ -9,10 +9,10 @@ export default async function InicioPage() {
       <p>
         Você está como <strong>{ROLE_LABEL[organization.role]}</strong>.
       </p>
-      <p className="muted">
-        Esta é a Fundação da plataforma. Clientes, documentos e guias chegam nos próximos
-        incrementos.
+      <p>
+        <a href="/clientes">Ver clientes e documentos</a>
       </p>
+      <p className="muted">Guias e envios pelo WhatsApp chegam nos próximos incrementos.</p>
     </main>
   );
 }

@@ -12,3 +12,7 @@ export * from './repositories/memberships';
 export * from './repositories/invitations';
 export * from './repositories/audit';
 export * from './repositories/tenant-settings';
+export * from './repositories/companies';
+export * from './repositories/contacts';
+export * from './repositories/documents';
+export * from './repositories/portal-sessions';

@@ -15,6 +15,13 @@
       "when": 1792002701617,
       "tag": "0001_seguranca_rls",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792011991739,
+      "tag": "0002_clientes_documentos",
+      "breakpoints": true
     }
   ]
 }

@@ -19,14 +19,17 @@ export async function recordAudit(
   await tx.insert(auditLogs).values({
     tenantId: ctx.tenantId,
     id: uuidv7(),
-    actorType: ctx.actor.type === 'member' ? 'member' : 'system',
+    actorType: ctx.actor.type,
     actorUserId: ctx.actor.type === 'member' ? ctx.actor.userId : null,
     action: entry.action,
     resourceType: entry.resourceType ?? null,
     resourceId: entry.resourceId ?? null,
     ip: ctx.ip ?? null,
     requestId: ctx.requestId,
-    metadata: entry.metadata ?? null,
+    metadata:
+      ctx.actor.type === 'contact'
+        ? { ...entry.metadata, contato: ctx.actor.contactId }
+        : (entry.metadata ?? null),
   });
 }
 

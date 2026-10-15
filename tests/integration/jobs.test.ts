@@ -13,7 +13,7 @@ import { eq, sql } from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
 import type { PgBoss } from 'pg-boss';
 import { afterAll, beforeAll, describe, expect, inject, it } from 'vitest';
-import { dbErrorMessage, memberCtx, ownerDb, systemCtx, uniqueEmail } from './helpers';
+import { dbErrorMessage, memberCtx, ownerDb, systemCtx, testStorage, uniqueEmail } from './helpers';
 
 const seed = inject('seed');
 let owner: Db;
@@ -88,6 +88,7 @@ describe('job com tenant errado (22)', () => {
     const [sendJob] = createJobs({
       email: { send: async (m) => void sent.push(m) },
       painelUrl: 'http://app.localhost:3000',
+      storage: testStorage(),
     });
     await expect(
       sendJob!.run({
@@ -148,6 +149,7 @@ describe('envio do convite', () => {
     const [sendJob] = createJobs({
       email: { send: async (m) => void sent.push(m) },
       painelUrl: 'http://app.localhost:3000',
+      storage: testStorage(),
     });
     await sendJob!.run({
       id: randomUUID(),
@@ -178,6 +180,7 @@ describe('envio do convite', () => {
         },
       },
       painelUrl: 'http://app.localhost:3000',
+      storage: testStorage(),
     });
     await expect(
       sendJob!.run({

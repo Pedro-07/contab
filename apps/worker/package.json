@@ -10,7 +10,9 @@
     "dev": "tsx watch --env-file-if-exists=../../.env src/index.ts",
     "start": "tsx src/index.ts",
     "typecheck": "tsc -p tsconfig.json",
-    "tenant:create": "tsx --env-file-if-exists=../../.env src/cli/tenant-create.ts"
+    "tenant:create": "tsx --env-file-if-exists=../../.env src/cli/tenant-create.ts",
+    "storage:setup": "tsx --env-file-if-exists=../../.env src/cli/storage-setup.ts",
+    "portal:dev-login": "tsx --env-file-if-exists=../../.env src/cli/portal-dev-login.ts"
   },
   "dependencies": {
     "@contab/adapters": "workspace:*",

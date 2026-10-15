@@ -48,3 +48,4 @@ Não existe `01-descoberta-e-indicadores.md`: a descoberta (hipóteses e indicad
 | Incremento | Plano da tarefa |
 | --- | --- |
 | Fundação multi-tenant | [incrementos/01-fundacao-multi-tenant.md](incrementos/01-fundacao-multi-tenant.md) |
+| Clientes e documentos | [incrementos/02-clientes-e-documentos.md](incrementos/02-clientes-e-documentos.md) |

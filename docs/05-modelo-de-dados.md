@@ -1,6 +1,6 @@
 # Modelo de dados
 
-> Origem: Seção 9 do plano. O schema detalhado da Fundação está em `incrementos/01-fundacao-multi-tenant.md`.
+> Origem: Seção 9 do plano. O schema detalhado de cada incremento está em `incrementos/` (Fundação: 01; clientes e documentos: 02).
 
 ## 9. Modelo de dados preliminar
 
@@ -17,9 +17,10 @@ São cerca de 30 tabelas em seis grupos. Escopo **global** significa sem tenant.
 | Identidade | `invitations` | tenant | token com hash, expira em 72 h, uso único |
 | Identidade | `tenant_settings`, `entitlements`, `usage_counters` | tenant | limites do plano; contadores por mês e recurso |
 | Identidade | `audit_logs` | tenant | ator, ação, recurso, IP; somente inserção |
-| Escritório | `client_companies` | tenant | `(tenant_id, cnpj)` único, regime (SN, MEI, LP, LR), status da procuração |
-| Escritório | `portal_users`, `client_access` | tenant | pessoa do portal ↔ empresa; `(tenant_id, portal_user_id, company_id)` único |
-| Escritório | `documents`, `document_versions` | tenant | categoria, empresa, chave no storage, hash do arquivo |
+| Escritório | `client_companies` | tenant | `(tenant_id, cnpj)` único entre as não excluídas (CNPJ numérico ou alfanumérico), regime (SN, MEI, LP, LR), status e validade da procuração, responsável no escritório |
+| Escritório | `company_contacts` | tenant | contato ↔ empresa, papel (sócio, financeiro, outro), recebe envios; `(tenant_id, company_id, contact_id)` único |
+| Escritório | `client_access`, `portal_sessions` | tenant | a pessoa do portal é o próprio contato (incremento 2): `client_access` liga contato ↔ empresa, `(tenant_id, contact_id, company_id)` único; `portal_sessions` guarda o hash do token e a empresa ativa |
+| Escritório | `documents`, `document_versions` | tenant | pasta (categoria fixa), empresa, visível ao cliente; versões com chave no storage presa a `tenants/{tenant_id}/`, tipo, tamanho, SHA-256 e status da verificação |
 | Escritório | `credentials` | tenant | tipo (termo Serpro assinado, e-CNPJ só no modo próprio, WhatsApp, e-mail), conteúdo criptografado, validade |
 | Guias | `guides` | tenant | tipo, competência, vencimento, valor, linha digitável, Pix, status; único `(tenant_id, company_id, type, period)` entre as ativas |
 | Guias | `guide_events` | tenant | transições de status, quem e quando |
@@ -27,7 +28,7 @@ São cerca de 30 tabelas em seis grupos. Escopo **global** significa sem tenant.
 | Guias | `installment_plans`, `installments` | tenant | parcelamento, parcelas, origem (PARCSN, PARCMEI, PGFN) |
 | Guias | `fiscal_calls` | tenant | chamada Serpro, serviço, custo, status, chave de idempotência |
 | Guias | `batch_uploads` | tenant | lote, arquivos, resultado da leitura, pendências |
-| CRM | `contacts` | tenant | nome, telefone E.164, e-mail; `(tenant_id, phone)` único; opt-in por canal |
+| CRM | `contacts`, `contact_consents` | tenant | nome, telefone E.164, e-mail, canal preferido; `(tenant_id, phone)` único; opt-in por canal com histórico só de inserção (origem, quem, quando) |
 | CRM | `pipelines`, `stages`, `deals` | tenant | funil, etapas ordenadas, negócio com valor, responsável, etapa |
 | CRM | `tasks`, `notes`, `tags`, `custom_fields`, `custom_field_values` | tenant | campos personalizados com tipo |
 | CRM | `activities` | tenant | linha do tempo unificada (mensagem, guia, documento, etapa) |

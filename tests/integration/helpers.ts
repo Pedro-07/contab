@@ -1,7 +1,21 @@
+import { createFileStorage, type FileStorage } from '@contab/adapters/storage';
+import { confirmDocumentUpload, requestDocumentUpload } from '@contab/core';
 import type { TenantContext } from '@contab/db';
+import { createJobs } from '@contab/worker/jobs';
+import type { PgBoss } from 'pg-boss';
 import { createDb, type Db } from '@contab/db/testing';
 import type { Role, TenantId, UserId } from '@contab/domain';
 import { randomUUID } from 'node:crypto';
+
+/** Storage de teste (SeaweedFS do docker compose, bucket de teste do .env.test). */
+export function testStorage(): FileStorage {
+  return createFileStorage({
+    STORAGE_ENDPOINT: process.env.STORAGE_ENDPOINT!,
+    STORAGE_BUCKET: process.env.STORAGE_BUCKET!,
+    STORAGE_ACCESS_KEY_ID: process.env.STORAGE_ACCESS_KEY_ID!,
+    STORAGE_SECRET_ACCESS_KEY: process.env.STORAGE_SECRET_ACCESS_KEY!,
+  });
+}
 
 /** Conexão com o papel `app` (sem BYPASSRLS), a mesma da aplicação. */
 export function appDb(max = 4): Db {
@@ -58,4 +72,66 @@ export async function dbErrorMessage(promise: Promise<unknown>): Promise<string>
 
 export function uniqueEmail(prefix: string): string {
   return `${prefix}-${randomUUID().slice(0, 8)}@exemplo.test`;
+}
+
+export const PDF_BYTES = new TextEncoder().encode(
+  '%PDF-1.7\n% documento fictício de teste\n%%EOF\n',
+);
+export const PNG_BYTES = new Uint8Array([
+  0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x0d,
+]);
+
+/** Roda o job document.verify como o worker faria. */
+export async function runVerifyJob(tenantId: string, versionId: string) {
+  const job = createJobs({
+    email: { send: async () => undefined },
+    painelUrl: 'http://app.localhost:3000',
+    storage: testStorage(),
+  }).find((j) => j.name === 'document.verify')!;
+  await job.run({ id: randomUUID(), data: { tenantId, versionId } });
+}
+
+/**
+ * Sobe um documento pelo fluxo completo: pede o envio, faz o PUT na URL assinada,
+ * confirma e roda a verificação.
+ */
+export async function uploadTestDocument(
+  ctx: TenantContext,
+  boss: PgBoss,
+  input: {
+    companyId: string;
+    documentId?: string;
+    title?: string;
+    bytes?: Uint8Array;
+    contentType?: string;
+    visibleToClient?: boolean;
+  },
+): Promise<{ versionId: string; documentId: string }> {
+  const bytes = input.bytes ?? PDF_BYTES;
+  const contentType = input.contentType ?? 'application/pdf';
+  const { versionId, upload } = await requestDocumentUpload(ctx, testStorage(), {
+    companyId: input.companyId,
+    ...(input.documentId ? { documentId: input.documentId } : { category: 'outros' }),
+    title: input.title ?? `Documento ${randomUUID().slice(0, 6)}`,
+    fileName: 'documento.pdf',
+    contentType,
+    size: bytes.length,
+    visibleToClient: input.visibleToClient ?? true,
+  });
+  const put = await fetch(upload.url, { method: 'PUT', body: bytes, headers: upload.headers });
+  if (!put.ok) throw new Error(`PUT falhou: ${put.status}`);
+  await confirmDocumentUpload(ctx, boss, versionId);
+  await runVerifyJob(ctx.tenantId, versionId);
+  const { rows } = await ownerDbOnce().$client.query<{ document_id: string }>(
+    'select document_id from document_versions where id = $1',
+    [versionId],
+  );
+  return { versionId, documentId: rows[0]!.document_id };
+}
+
+let sharedOwner: Db | undefined;
+/** Conexão owner compartilhada pelos helpers (fechada pelo processo de teste). */
+function ownerDbOnce(): Db {
+  sharedOwner ??= ownerDb();
+  return sharedOwner;
 }

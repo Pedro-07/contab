@@ -1,4 +1,4 @@
-import { InvalidInvitationError, InvitationInputError } from '@contab/core';
+import { ClientInputError, InvalidInvitationError, InvitationInputError } from '@contab/core';
 import { ForbiddenError, NotFoundError, type TenantContext } from '@contab/db';
 import { revalidatePath } from 'next/cache';
 import { notFound } from 'next/navigation';
@@ -24,6 +24,7 @@ export async function runPainelAction(
     if (
       error instanceof ForbiddenError ||
       error instanceof InvitationInputError ||
+      error instanceof ClientInputError ||
       error instanceof InvalidInvitationError
     ) {
       return { ok: false, error: error.message };
@@ -35,4 +36,8 @@ export async function runPainelAction(
 export function formString(formData: FormData, name: string): string {
   const value = formData.get(name);
   return typeof value === 'string' ? value : '';
+}
+
+export function formBool(formData: FormData, name: string): boolean {
+  return formData.get(name) === 'on';
 }
