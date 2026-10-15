@@ -59,6 +59,11 @@ export default async function EmpresaPage({ params }: { params: Promise<{ id: st
         {COMPANY_STATUS_LABEL[company.status]}
       </p>
 
+      <p className="row">
+        <a href={`/guias?empresa=${company.id}`}>Ver guias</a>
+        {canDocs && <a href={`/guias/nova?empresa=${company.id}`}>Nova guia avulsa</a>}
+      </p>
+
       <section aria-labelledby="dados">
         <h2 id="dados">Dados da empresa</h2>
         <dl className="facts">

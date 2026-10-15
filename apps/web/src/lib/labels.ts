@@ -84,3 +84,45 @@ export function formatBytes(bytes: number): string {
   if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
   return `${(bytes / 1024 / 1024).toFixed(1).replace('.', ',')} MB`;
 }
+
+export const GUIDE_STATUS_LABEL = {
+  rascunho: 'Rascunho',
+  publicada: 'Publicada',
+  vencida: 'Vencida',
+  paga: 'Paga',
+  substituida: 'Substituída',
+  cancelada: 'Cancelada',
+} as const;
+
+export const GUIDE_TYPE_NAME = {
+  das_simples: 'DAS do Simples',
+  das_mei: 'DAS do MEI',
+  dctfweb: 'DCTFWeb',
+  darf: 'DARF',
+  icms: 'ICMS',
+  iss: 'ISS',
+  fgts: 'FGTS',
+  pgfn: 'PGFN',
+  outro: 'Outro',
+} as const;
+
+export const DELIVERY_STATUS_LABEL = {
+  enfileirado: 'Na fila',
+  enviado: 'Enviado',
+  entregue: 'Entregue',
+  lido: 'Lido',
+  falhou: 'Falhou',
+  cancelado: 'Cancelado',
+} as const;
+
+export const DELIVERY_TRIGGER_LABEL = {
+  publicacao: 'Publicação',
+  lembrete: 'Lembrete',
+  vencida: 'Aviso de vencida',
+  pago: 'Pagamento confirmado',
+} as const;
+
+/** "2026-11-20" → "20/11/2026" */
+export function formatIsoDate(iso: string): string {
+  return `${iso.slice(8, 10)}/${iso.slice(5, 7)}/${iso.slice(0, 4)}`;
+}

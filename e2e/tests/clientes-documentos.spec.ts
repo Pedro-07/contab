@@ -104,9 +104,9 @@ test('CA6: João escolhe a empresa no portal e só vê a empresa ativa', async (
 
   // Sair revoga a sessão do portal.
   await page.getByRole('button', { name: 'Sair' }).click();
-  await expect(page.getByText('Entre pelo link que o escritório enviou')).toBeVisible();
+  await expect(page.getByText('As guias e os documentos chegam')).toBeVisible();
   await page.goto('http://alfa.localhost:3000/');
-  await expect(page.getByText('Entre pelo link que o escritório enviou')).toBeVisible();
+  await expect(page.getByText('As guias e os documentos chegam')).toBeVisible();
 });
 
 test('link do portal usado duas vezes não entra', async ({ page }) => {

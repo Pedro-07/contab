@@ -25,7 +25,13 @@ export default async function PortalPage({
             Este link de acesso não vale mais.
           </p>
         )}
-        <p>Entre pelo link que o escritório enviou no seu WhatsApp.</p>
+        <p>As guias e os documentos chegam pelo WhatsApp ou pelo e-mail.</p>
+        <p>
+          <a className="button" href="/entrar">
+            Entrar com o código no WhatsApp
+          </a>
+        </p>
+        <p className="muted">Use para buscar guias e documentos antigos.</p>
       </main>
     );
   }

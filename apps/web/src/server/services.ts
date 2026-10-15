@@ -2,7 +2,10 @@
  * Instâncias únicas do servidor (auth, fila). Guardadas no globalThis porque o Next pode
  * carregar o módulo mais de uma vez em desenvolvimento.
  */
+import { createCipher } from '@contab/adapters/crypto';
 import { createEmailSender } from '@contab/adapters/email';
+import { createWhatsAppProvider } from '@contab/adapters/whatsapp';
+import { portalOriginFrom, type DeliveryDeps } from '@contab/core';
 import { createFileStorage, type FileStorage } from '@contab/adapters/storage';
 import { createAuth, type Auth } from '@contab/auth';
 import { serverEnv } from '@contab/config/env';
@@ -44,4 +47,18 @@ export function getBoss(): Promise<PgBoss> {
 export function getStorage(): FileStorage {
   services.storage ??= createFileStorage(serverEnv());
   return services.storage;
+}
+
+/** Dependências dos casos de uso de conexão, guias e entrega (incremento 3). */
+export async function getDeliveryDeps(): Promise<DeliveryDeps> {
+  const env = serverEnv();
+  return {
+    boss: await getBoss(),
+    storage: getStorage(),
+    whatsapp: createWhatsAppProvider(env),
+    email: createEmailSender(env),
+    cipher: createCipher(env),
+    portalOrigin: portalOriginFrom(env.BETTER_AUTH_URL, env.APP_BASE_DOMAIN),
+    linkSecret: env.BETTER_AUTH_SECRET,
+  };
 }
