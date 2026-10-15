@@ -1,6 +1,7 @@
 'use client';
 
-import { useActionState, type ReactNode } from 'react';
+import { useRouter } from 'next/navigation';
+import { useActionState, useEffect, type ReactNode } from 'react';
 import type { ActionResult } from '@/server/actions';
 
 type Action = (state: ActionResult, formData: FormData) => Promise<ActionResult>;
@@ -18,6 +19,11 @@ export function ActionForm({
   variant?: 'secondary' | 'danger';
 }) {
   const [state, formAction, pending] = useActionState(action, null);
+  const router = useRouter();
+  const redirectTo = state?.ok ? state.redirectTo : undefined;
+  useEffect(() => {
+    if (redirectTo) router.push(redirectTo);
+  }, [redirectTo, router]);
   return (
     <form action={formAction}>
       {children}

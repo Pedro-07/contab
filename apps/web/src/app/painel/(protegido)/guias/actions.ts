@@ -11,7 +11,6 @@ import {
 } from '@contab/core';
 import { ForbiddenError, NotFoundError } from '@contab/db';
 import { revalidatePath } from 'next/cache';
-import { redirect } from 'next/navigation';
 import { formString, runPainelAction, type ActionResult } from '@/server/actions';
 import { requirePainel } from '@/server/painel';
 import { getBoss, getStorage } from '@/server/services';
@@ -37,8 +36,7 @@ export async function createGuideAction(
     ).id;
     return 'Guia criada. Agora envie o PDF.';
   });
-  if (result?.ok) redirect(`/guias/${id}`);
-  return result;
+  return result?.ok ? { ...result, redirectTo: `/guias/${id}` } : result;
 }
 
 export type PdfUploadStart =

@@ -7,7 +7,8 @@
 import { expect, test, type Page } from '@playwright/test';
 import { login, totp } from './support';
 
-test.describe.configure({ mode: 'serial' });
+// O primeiro teste faz muita coisa (MFA, conexão, aprovação dos modelos, guia).
+test.describe.configure({ mode: 'serial', timeout: 120_000 });
 
 const MAILPIT = 'http://localhost:8025/api/v1';
 const JOAO = '5598990000001@whatsapp.simulado';
@@ -89,6 +90,7 @@ test('admin conecta o WhatsApp, publica a guia e o cliente recebe com Pix e link
   await page.getByLabel('Pix copia e cola').fill(PIX);
   await page.getByRole('button', { name: 'Criar guia' }).click();
   await expect(page).toHaveURL(/\/guias\/[0-9a-f-]{36}$/);
+  await expect(page.getByRole('heading', { name: 'DAS do Simples 11/2030' })).toBeVisible();
   guideUrl = page.url();
 
   await page.locator('#guide-pdf').setInputFiles({

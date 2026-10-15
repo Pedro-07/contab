@@ -4,7 +4,12 @@ import { revalidatePath } from 'next/cache';
 import { notFound } from 'next/navigation';
 import { requirePainel } from './painel';
 
-export type ActionResult = { ok: true; message: string } | { ok: false; error: string } | null;
+/**
+ * redirectTo: o navegador navega depois do sucesso. Não usamos redirect() de server action
+ * para isso: no build de produção o Next busca o destino por conta própria (incremento 2).
+ */
+export type ActionResult =
+  { ok: true; message: string; redirectTo?: string } | { ok: false; error: string } | null;
 
 /**
  * Envelope das server actions do painel. O tenant vem só da sessão (requirePainel);
