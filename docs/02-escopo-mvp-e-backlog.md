@@ -53,7 +53,7 @@ O plano tem três marcos:
 | Fundação multi-tenant | concluída em 14/10/2026 | |
 | Clientes e documentos | concluído em 15/10/2026 | |
 | Guias, templates e entrega | 16/10/2026 | 06/11/2026 |
-| Serpro: DAS, recálculo e pagamentos | 07/11/2026 | 23/11/2026 |
+| Serpro: DAS, DCTFWeb, recálculo e pagamentos | 07/11/2026 | 23/11/2026 |
 | **Marco: entrega automática no ar (Contact)** | **23/11/2026** | |
 | Leitura de PDF em lote (tipos assistidos) | 24/11/2026 | 07/12/2026 |
 | Inbox, CRM e solicitações | a replanejar depois do marco | |
@@ -76,7 +76,7 @@ A semana de 28/12 fica livre por causa das festas. Ela funciona como folga do MV
 | Clientes e documentos | Importação por CSV; ficha do cliente; pastas por empresa | CA6 passando; arquivo de outro tenant inacessível |
 | Guias, templates e entrega | WhatsApp do escritório conectado e biblioteca aprovada; guia publicada (avulsa, como contingência) chega no WhatsApp com PDF, Pix e link seguro; régua ativa | CA7 passando |
 | Inbox, CRM e solicitações | Histórico de envios por cliente; conversa em tempo real; solicitações e tarefas | CA4 e CA5 passando; inbox abaixo de 3 s |
-| Serpro: DAS, recálculo e pagamentos | DAS do MEI e do Simples gerado sozinho e enviado; atualizar guia gera DAS novo; pagamento confirmado para a régua e envia o comprovante | CA2 passando; disjuntor testado; piloto com 5 clientes |
+| Serpro: DAS, DCTFWeb, recálculo e pagamentos | DAS do MEI e do Simples gerado sozinho e enviado; guia da DCTFWeb (tributos federais do Lucro Presumido e Real) gerada depois da transmissão e enviada; atualizar guia gera DAS novo; pagamento confirmado para a régua e envia o comprovante | CA2 passando; disjuntor testado; piloto com 5 clientes |
 | Leitura de PDF em lote | A contadora sobe ICMS, ISS, FGTS e PGFN em lote; o sistema lê, vincula e envia; o que não casa vai para revisão | CA3 passando; leitura acima de 90% |
 | Honorários e portal básico | Contratos de honorários; boleto e Pix na conta da Contact; régua e baixa automática; portal básico com lista e download | CA8 passando; um mês real de honorários cobrado |
 | Campanhas e automações | Disparo segmentado; regras personalizadas do escritório | 5.000 mensagens sem atrasar o inbox nem a régua |
