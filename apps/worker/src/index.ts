@@ -1,7 +1,7 @@
 import { createCipher } from '@contab/adapters/crypto';
 import { createEmailSender } from '@contab/adapters/email';
 import { createFileStorage } from '@contab/adapters/storage';
-import { createWhatsAppProvider } from '@contab/adapters/whatsapp';
+import { createWhatsAppProvider, mirrorToEmail } from '@contab/adapters/whatsapp';
 import { serverEnv } from '@contab/config/env';
 import { logger } from '@contab/config/logger';
 import { portalOriginFrom } from '@contab/core';
@@ -16,12 +16,14 @@ boss.on('error', (error) => logger.error({ err: error.message }, 'erro no pg-bos
 
 await boss.start();
 
+const email = createEmailSender(env);
 const deps = {
-  email: createEmailSender(env),
+  email,
   painelUrl: env.BETTER_AUTH_URL,
   storage: createFileStorage(env),
   boss,
-  whatsapp: createWhatsAppProvider(env),
+  // Simulado (dev e testes): cada mensagem aparece no Mailpit como <telefone>@whatsapp.simulado.
+  whatsapp: createWhatsAppProvider(env, { mirror: mirrorToEmail((m) => email.send(m)) }),
   cipher: createCipher(env),
   portalOrigin: portalOriginFrom(env.BETTER_AUTH_URL, env.APP_BASE_DOMAIN),
   linkSecret: env.BETTER_AUTH_SECRET,

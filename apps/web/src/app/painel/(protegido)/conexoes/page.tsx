@@ -85,10 +85,7 @@ export default async function ConexoesPage() {
       ) : (
         <p role="status">O WhatsApp ainda não foi conectado. Até lá, os envios saem por e-mail.</p>
       )}
-      <details className="card" open={!channel}>
-        <summary>{channel ? 'Reconectar ou trocar o número' : 'Conectar o WhatsApp'}</summary>
-        <ConnectForm reconnect={Boolean(channel)} />
-      </details>
+      <ConnectForm reconnect={Boolean(channel)} />
     </main>
   );
 }

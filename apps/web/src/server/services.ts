@@ -4,7 +4,7 @@
  */
 import { createCipher } from '@contab/adapters/crypto';
 import { createEmailSender } from '@contab/adapters/email';
-import { createWhatsAppProvider } from '@contab/adapters/whatsapp';
+import { createWhatsAppProvider, mirrorToEmail } from '@contab/adapters/whatsapp';
 import { portalOriginFrom, type DeliveryDeps } from '@contab/core';
 import { createFileStorage, type FileStorage } from '@contab/adapters/storage';
 import { createAuth, type Auth } from '@contab/auth';
@@ -52,11 +52,12 @@ export function getStorage(): FileStorage {
 /** Dependências dos casos de uso de conexão, guias e entrega (incremento 3). */
 export async function getDeliveryDeps(): Promise<DeliveryDeps> {
   const env = serverEnv();
+  const email = createEmailSender(env);
   return {
     boss: await getBoss(),
     storage: getStorage(),
-    whatsapp: createWhatsAppProvider(env),
-    email: createEmailSender(env),
+    whatsapp: createWhatsAppProvider(env, { mirror: mirrorToEmail((m) => email.send(m)) }),
+    email,
     cipher: createCipher(env),
     portalOrigin: portalOriginFrom(env.BETTER_AUTH_URL, env.APP_BASE_DOMAIN),
     linkSecret: env.BETTER_AUTH_SECRET,

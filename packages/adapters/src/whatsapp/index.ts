@@ -356,7 +356,9 @@ export type FakeSent = { connection: string; message: TemplateMessage; messageId
  * Não chama a Meta. Aprova os templates na hora e guarda as mensagens em memória.
  * Telefones terminados em 0000 simulam número inválido (erro permanente, 131026).
  */
-export function createFakeProvider(): WhatsAppProvider & { sent: FakeSent[] } {
+export function createFakeProvider(
+  options: { mirror?: (message: TemplateMessage) => Promise<void> } = {},
+): WhatsAppProvider & { sent: FakeSent[] } {
   const sent: FakeSent[] = [];
   return {
     name: 'fake',
@@ -376,6 +378,7 @@ export function createFakeProvider(): WhatsAppProvider & { sent: FakeSent[] } {
       if (message.to.endsWith('0000')) throw new WhatsAppError(131026, true, 'destinatario');
       const messageId = `wamid.fake-${randomUUID()}`;
       sent.push({ connection: c.phoneNumberId, message, messageId });
+      await options.mirror?.(message);
       return { messageId };
     },
     async submitTemplate() {
@@ -392,10 +395,34 @@ export type WhatsAppConfig = {
   WHATSAPP_GRAPH_VERSION: string;
 };
 
-export function createWhatsAppProvider(config: WhatsAppConfig): WhatsAppProvider {
+/**
+ * Com o provedor simulado, cada mensagem pode ser copiada para outro lugar (em dev e nos
+ * testes de navegador, para o Mailpit), para ver o que teria saído pelo WhatsApp.
+ */
+export function createWhatsAppProvider(
+  config: WhatsAppConfig,
+  options: { mirror?: (message: TemplateMessage) => Promise<void> } = {},
+): WhatsAppProvider {
   return config.WHATSAPP_PROVIDER === 'cloud'
     ? createCloudApiProvider({ graphVersion: config.WHATSAPP_GRAPH_VERSION })
-    : createFakeProvider();
+    : createFakeProvider(options);
+}
+
+/** Copia a mensagem simulada como e-mail para <telefone>@whatsapp.simulado (Mailpit). */
+export function mirrorToEmail(
+  send: (m: { to: string; subject: string; text: string }) => Promise<void>,
+) {
+  return async (message: TemplateMessage) => {
+    await send({
+      to: `${message.to.replace(/\D/g, '')}@whatsapp.simulado`,
+      subject: `[WhatsApp simulado] ${message.templateName}`,
+      text: [
+        ...message.bodyValues.map((v, i) => `{{${i + 1}}} ${v}`),
+        ...(message.document ? [`PDF: ${message.document.fileName}`] : []),
+        ...(message.linkSuffix ? [`link: /g/${message.linkSuffix}`] : []),
+      ].join('\n'),
+    });
+  };
 }
 
 /** Status da Meta → status do template no escritório. */

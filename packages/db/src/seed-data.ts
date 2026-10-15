@@ -11,6 +11,7 @@ import {
   grantPortalAccess,
   insertContact,
   linkContact,
+  recordConsent,
 } from './repositories/contacts';
 import { upsertMembership } from './repositories/memberships';
 import { createTenantSettings } from './repositories/tenant-settings';
@@ -110,9 +111,20 @@ async function seedClients(db: Db, alfaId: TenantId, betaId: TenantId) {
     withTenant(
       seedContext(tenantId),
       async (tx) => {
+        const existing = await findContactByPhone(tx, JOAO_PHONE);
         const row =
-          (await findContactByPhone(tx, JOAO_PHONE)) ??
+          existing ??
           (await insertContact(tx, tenantId, { name: 'João Fictício', phone: JOAO_PHONE }));
+        if (!existing) {
+          // P25: contato novo nasce autorizado no canal que tem.
+          await recordConsent(tx, tenantId, {
+            contactId: row.id,
+            channel: 'whatsapp',
+            optIn: true,
+            source: 'padrao_escritorio',
+            actorUserId: null,
+          });
+        }
         for (const companyId of companyIds) {
           await linkContact(tx, tenantId, {
             companyId,
