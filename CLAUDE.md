@@ -63,7 +63,7 @@ Tenant piloto: Contact Consultoria.
 - Toda integração passa por um adaptador em `packages/adapters`, com timeout, retry com backoff, idempotência e registro de custo por tenant.
 - WhatsApp **somente pela Cloud API oficial**. Proibido Baileys, Evolution ou qualquer API não oficial.
   - Cada escritório usa o **próprio WABA e número**, e a plataforma só intermedia.
-  - Agora a conexão é manual, pela tela Conexões › WhatsApp, com WABA ID, Phone Number ID, token e app secret. Cada tenant tem URL de webhook e verify token próprios.
+  - Agora a conexão é manual, pela tela Conexões › WhatsApp, com WABA ID, Phone Number ID, token e app secret. Cada conexão tem URL de webhook (secreta) e verify token próprios; com o Embedded Signup, a URL é única e o tenant sai do `phone_number_id`. Nos dois casos, o `phone_number_id` da mensagem precisa ser da conexão (I2).
   - Depois vem o Embedded Signup, quando a aprovação de Tech Provider sair. O adaptador é o mesmo.
 - Serpro em **dois modos por tenant**, pela tela Conexões › Receita Federal:
   - **plataforma** (padrão): o Pedro é o contratante (software house). O escritório assina o termo de autorização (Autentica Procurador) **localmente**, no computador dele. No MVP isso é feito no Assinador do Serpro, e o sistema recebe só o XML assinado. Depois vira um clique via Web PKI. O certificado do escritório **nunca é enviado**. O consumo é medido por tenant e entra nos entitlements.
@@ -126,7 +126,7 @@ Detalhes na seção 5 do plano.
 - Guia com status `paga` não muda mais. DAS recalculado gera guia nova e a antiga vira `substituída`.
 - Não pode haver duas guias ativas com a mesma chave `(tenant, empresa, tipo, competência)`.
 - WhatsApp: texto livre só dentro da janela de 24 h. Fora dela, só template aprovado.
-- Lembretes e campanhas só para contatos com opt-in ativo. O pagamento é rechecado antes de cada envio.
+- Opt-in (P25): na entrega do núcleo, o contato nasce autorizado (o escritório responde por informar o cliente) e o sistema registra a origem; campanhas exigem opt-in explícito. Opt-out vale sempre e na hora. O pagamento é rechecado antes de cada envio.
 - Valores em centavos (`bigint`), datas em `timestamptz`, competência em `date` com dia 1, IDs em UUID v7.
 
 ## Definição de pronto

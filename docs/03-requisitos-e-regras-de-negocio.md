@@ -129,6 +129,8 @@ Toda regra abaixo é aplicada no servidor. A interface só reflete o que o servi
   - `rascunho → publicada → paga`
   - `publicada → vencida → substituída`
   - `publicada → cancelada`
+  - **Pagamento sempre vale (I5, 15/10/2026):** confirmado o pagamento (Serpro ou baixa manual auditada), qualquer guia que não esteja `cancelada` vai para `paga`, inclusive `vencida` ou `substituída`. Se a guia paga era uma substituída, a guia ativa que a substituiu vira `cancelada`, a régua para e o escritório recebe um alerta.
+  - Guia gerada pela Serpro nasce `publicada`. Só a guia avulsa (envio manual) passa por `rascunho`.
   - Uma guia paga não volta a nenhum outro status.
 - **RN2 — Recálculo automático.** Só vale para DAS (Simples e MEI) vencido e não pago. A nova guia substitui a anterior e guarda o vínculo de origem. Limite: 3 recálculos por guia por dia.
 - **RN3 — Tipos assistidos.** FGTS, ICMS-MA, ISS e PGFN nunca chamam API externa. "Atualizar" cria um pedido na fila do escritório.
@@ -136,6 +138,7 @@ Toda regra abaixo é aplicada no servidor. A interface só reflete o que o servi
 - **RN5 — Duplicidade de guia.** Não pode haver duas guias ativas com a mesma chave `(tenant, empresa, tipo, competência)`.
 - **RN6 — Janela de 24h.** Mensagem livre de WhatsApp só dentro de 24h da última mensagem do contato. Fora disso, só template aprovado.
 - **RN7 — Consentimento.** Campanhas e lembretes só vão para contatos com opt-in ativo no canal. Opt-out ("SAIR" ou link no e-mail) vale na hora e fica registrado.
+  - **P25 (15/10/2026):** na entrega do núcleo (guias, documentos, lembretes e honorários), o contato nasce autorizado em cada canal que tem (telefone ou e-mail). O escritório é responsável por informar o cliente; o sistema registra a origem `padrao_escritorio`, quem cadastrou e quando. O escritório pode desmarcar, e o opt-out do cliente (SAIR ou link no e-mail) vale na hora. Campanhas continuam exigindo opt-in marcado explicitamente.
 - **RN8 — Lembretes.** Guia paga não recebe lembrete. O status de pagamento é verificado imediatamente antes de cada envio.
 - **RN9 — Acesso do portal.** A pessoa do portal só vê as empresas a que foi vinculada, e só dentro do tenant do domínio acessado.
 - **RN10 — Papéis do escritório.**

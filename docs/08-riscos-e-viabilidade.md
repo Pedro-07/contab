@@ -16,7 +16,7 @@ O risco que mais preocupa é o de escopo, não o técnico. Um CRM completo no es
 | R6 | Modelo de contratação da Serpro não permite a plataforma atender vários escritórios | Média | Alto | PoC sem autenticação de procurador | PoC na semana 1 a 2; ler os termos da Serpro | Cada escritório contrata a própria Serpro |
 | R7 | Leitura de PDF falha em modelos variados de guia | Média | Médio | Mais de 10% dos PDFs indo para revisão | Coletar 50 PDFs reais (anonimizados) antes de codar; parser por modelo | Revisão manual assistida com campos pré-preenchidos |
 | R8 | Serpro instável no dia 20 | Média | Médio | Taxa de erro acima de 20% | Disjuntor, fila com retentativa, guias geradas com antecedência | Fila manual com aviso ao cliente |
-| R9 | Bloqueio do número por denúncia de spam | Baixa | Alto | Qualidade do número caindo na Meta | Opt-in, frequência limitada, templates de utilidade | Número reserva verificado |
+| R9 | Bloqueio do número por denúncia de spam | Baixa (média com a P25) | Alto | Qualidade do número caindo na Meta | Opt-in, frequência limitada, templates de utilidade | Número reserva verificado |
 | R10 | Desenvolvedor solo como ponto único de falha | Alta | Alto | Férias, doença, emprego CLT ocupando o tempo | Documentação e runbooks, infraestrutura gerenciada, alertas | Contrato com prazo de resposta realista; parceiro técnico de reserva |
 
 Riscos acrescentados com a entrega pelo WhatsApp e os honorários:
@@ -50,10 +50,10 @@ Encontradas na revisão de 14/10/2026. Não bloqueiam a Fundação. Cada uma dev
 | # | Inconsistência | Onde aparece | Resolver antes de |
 | --- | --- | --- | --- |
 | I1 | Quem assina a declaração de faturamento: "e-CPF A1 do contador (PAdES)" ou o e-CNPJ do escritório, localmente. Um A1 no servidor contradiz o ADR 0006 | 04 (seção 10), 07 (seção 11) | Fiscal completo |
-| I2 | Webhook do WhatsApp: URL e verify token por tenant (CLAUDE.md) ou mapeamento pelo `phone_number_id` (seção 7). As variáveis `META_APP_SECRET` e `META_WEBHOOK_VERIFY_TOKEN` globais do `.env.example` parecem ser para o Embedded Signup | CLAUDE.md, 04, `.env.example` | Guias, templates e entrega |
-| I3 | Tabela `templates` (por tenant) parece substituída por `template_library` + `tenant_templates` (P9) | 05 | Guias, templates e entrega |
+| I2 | **Resolvida em 15/10/2026:** os dois modos. Conexão manual: endereço de webhook próprio e secreto por conexão, que identifica o escritório e o app secret para conferir a assinatura. Embedded Signup: endereço único do app, com o escritório identificado pelo `phone_number_id`. Nos dois, o `phone_number_id` da mensagem precisa pertencer à conexão, senão é recusado e registrado. | CLAUDE.md, 04, `.env.example` | — |
+| I3 | **Resolvida em 15/10/2026:** só `template_library` (plataforma) + `tenant_templates` (status por escritório). A tabela `templates` saiu do modelo. | 05 | — |
 | I4 | `deals` "com valor" sugere funil de vendas, mas P4 tira a prospecção do escopo. Os funis são só de processos internos? | 05, 03 | Inbox, CRM e solicitações |
-| I5 | RN1 não prevê `vencida → paga` (cliente paga a guia vencida sem recalcular) nem diz se a guia gerada pela Serpro passa por `rascunho` | 03 (RN1) | Guias, templates e entrega |
+| I5 | **Resolvida em 15/10/2026:** pagamento sempre vale; guia da Serpro nasce publicada. Ver RN1. | 03 (RN1) | — |
 | I6 | O MVP já tem portal básico com login, mas existe o incremento pós-MVP "Portal com login e planos". Falta definir a diferença | 02 | Honorários e portal básico |
 | I7 | Quantidade de PDFs de exemplo: 10 a 20 (`fixtures/guias/LEIA-ME.txt`), 20 (seção 14) ou 50 (R7) | 02, 08 | Descoberta e PoCs |
 | I8 | Detalhes de texto: "quatro frentes" com cinco itens (seção 1); "nove módulos" com 11 linhas (seção 4); declarações de IR citadas na LGPD sem estar no escopo | 00, 03, 07 | Quando o tema for tocado. (O provedor do KMS, que também estava aqui, foi resolvido pela P17: AWS KMS.) |

@@ -30,7 +30,7 @@ Vamos construir uma plataforma SaaS multi-tenant para escritórios de contabilid
 
 ### Confirmado
 
-- **Negócio:** a Contact aceitou a assinatura de cerca de R$ 500/mês. Tem menos de 25 clientes.
+- **Negócio:** a Contact aceitou a assinatura de cerca de R$ 500/mês. Tem cerca de 25 clientes: uns 6 no Simples Nacional, 3 MEI e o restante no Lucro Presumido ou Real (informado em 15/10/2026).
 - **Pedidos da contadora:** portal com login, guias do mês, recálculo de guia vencida com um clique, parcelamentos, documentos da empresa e declaração de faturamento dos últimos 12 meses assinada.
 - **Pedidos do Pedro:** multi-tenant, CRM no estilo Kommo com disparos de WhatsApp e e-mail, e chat de WhatsApp pela API oficial.
 - **Preços da Serpro:** consulta R$ 0,24, emissão R$ 0,32 e declaração R$ 0,40 na faixa 1. Consulta de dívida ativa R$ 0,6591.
@@ -82,3 +82,13 @@ Vamos construir uma plataforma SaaS multi-tenant para escritórios de contabilid
 | P18 | **Better Auth no lugar do Auth.js.** Link mágico, sessões no banco, TOTP, códigos de recuperação e limite de tentativas prontos. O plugin de organizações dele não é usado. | ADR 0007 |
 | P19 | **Criação de escritório por comando do operador** (`pnpm tenant:create`), que cria o tenant e o convite do dono. O cadastro pela internet fica para "Portal com login e planos". | Seções 8 e 14 |
 | P20 | **Fora da Fundação:** `entitlements` e `usage_counters` (entram com planos e com as integrações que geram consumo) e o fluxo do modo suporte (a Fundação deixa só o registro em `security_events` e `audit_logs`). | Seções 8, 9 e 14 |
+
+**Decisões de 15/10/2026 (antes do incremento "Guias, templates e entrega"):**
+
+| # | Decisão | Onde muda o plano |
+| --- | --- | --- |
+| P21 | **WhatsApp: número próprio do escritório é o único caminho no MVP.** Cada escritório conecta a própria conta oficial (WABA e número) em Conexões › WhatsApp; depois da aprovação como Tech Provider, pelo Embedded Signup. Um número geral da plataforma (envio em nome do escritório) fica para depois do MVP, como opção de início rápido, e só depois de conferir as políticas da Meta. Se entrar, vira ADR novo (muda o ADR 0008). | Seções 4 e 10; ADR 0008 |
+| P22 | **Canal do cliente:** a entrega é por WhatsApp, e-mail ou os dois, conforme a preferência do contato. O portal é o último recurso e o arquivo histórico (guias e documentos antigos), não o caminho principal. Todo documento obtido automaticamente (DAS, recibos, comprovantes, CCMEI) também vai para o arquivo do cliente. | Seções 3 e 4 |
+| P23 | **Ordem: Serpro antes da leitura de PDF em lote.** Guias, templates e entrega (16/10 a 06/11) → Serpro: DAS, recálculo e pagamentos (07/11 a 23/11, construído no ambiente trial e ligado em produção quando o contrato sair) → marco 23/11 → leitura de PDF em lote (ICMS, ISS, FGTS, PGFN). Contingência do marco: envio avulso de guia pelo WhatsApp. | Seção 14 |
+| P24 | **O incremento da Serpro inclui a guia da DCTFWeb**, além do DAS: a maior parte dos clientes da Contact é do Lucro Presumido ou Real, e a guia federal mensal deles sai pela API depois da transmissão. Se não couber até 23/11, vem logo depois do marco. O Pedro abre a empresa e adianta o contrato da Serpro; conferir com a Contact se a atividade cabe no MEI e o limite de faturamento. | Seção 14 |
+| P25 | **Autorização por padrão na entrega do núcleo.** O escritório informa o cliente e responde por isso; o contato nasce autorizado em cada canal que tem, com origem `padrao_escritorio` registrada. Desmarcar e opt-out (SAIR) continuam valendo; campanhas exigem opt-in explícito. Substitui a D2 do incremento 2 (declaração na importação). Risco aceito: denúncias podem levar a Meta a bloquear o número do escritório (R9). | RN7; `CLAUDE.md`; incremento 3 |
