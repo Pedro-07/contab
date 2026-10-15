@@ -43,6 +43,12 @@ Não existe `01-descoberta-e-indicadores.md`: a descoberta (hipóteses e indicad
 | [0008](adr/0008-whatsapp-canal-principal-e-templates.md) | WhatsApp como canal principal e templates da plataforma |
 | [0009](adr/0009-honorarios-na-conta-do-escritorio.md) | Honorários na conta do escritório |
 
+## Pesquisas
+
+| Tema | Arquivo |
+| --- | --- |
+| O que o Integra Contador (Serpro) oferece | [pesquisas/serpro-integra-contador.md](pesquisas/serpro-integra-contador.md) |
+
 ## Incrementos
 
 | Incremento | Plano da tarefa |

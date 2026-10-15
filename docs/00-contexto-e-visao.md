@@ -82,3 +82,10 @@ Vamos construir uma plataforma SaaS multi-tenant para escritórios de contabilid
 | P18 | **Better Auth no lugar do Auth.js.** Link mágico, sessões no banco, TOTP, códigos de recuperação e limite de tentativas prontos. O plugin de organizações dele não é usado. | ADR 0007 |
 | P19 | **Criação de escritório por comando do operador** (`pnpm tenant:create`), que cria o tenant e o convite do dono. O cadastro pela internet fica para "Portal com login e planos". | Seções 8 e 14 |
 | P20 | **Fora da Fundação:** `entitlements` e `usage_counters` (entram com planos e com as integrações que geram consumo) e o fluxo do modo suporte (a Fundação deixa só o registro em `security_events` e `audit_logs`). | Seções 8, 9 e 14 |
+
+**Decisões de 15/10/2026 (antes do incremento "Guias, templates e entrega"):**
+
+| # | Decisão | Onde muda o plano |
+| --- | --- | --- |
+| P21 | **WhatsApp: número próprio do escritório é o único caminho no MVP.** Cada escritório conecta a própria conta oficial (WABA e número) em Conexões › WhatsApp; depois da aprovação como Tech Provider, pelo Embedded Signup. Um número geral da plataforma (envio em nome do escritório) fica para depois do MVP, como opção de início rápido, e só depois de conferir as políticas da Meta. Se entrar, vira ADR novo (muda o ADR 0008). | Seções 4 e 10; ADR 0008 |
+| P22 | **Canal do cliente:** a entrega é por WhatsApp, e-mail ou os dois, conforme a preferência do contato. O portal é o último recurso e o arquivo histórico (guias e documentos antigos), não o caminho principal. Todo documento obtido automaticamente (DAS, recibos, comprovantes, CCMEI) também vai para o arquivo do cliente. | Seções 3 e 4 |
