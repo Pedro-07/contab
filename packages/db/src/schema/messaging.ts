@@ -64,6 +64,8 @@ export const channels = pgTable(
       .references(() => tenants.id),
     id: uuid().notNull(),
     kind: channelKind().notNull().default('whatsapp'),
+    // ID do app da Meta: usado no upload do PDF de exemplo dos templates com documento.
+    appId: text().notNull(),
     wabaId: text().notNull(),
     phoneNumberId: text().notNull(),
     displayPhone: text(),

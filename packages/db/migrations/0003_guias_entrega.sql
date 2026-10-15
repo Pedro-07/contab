@@ -20,6 +20,7 @@ CREATE TABLE "channels" (
 	"tenant_id" uuid NOT NULL,
 	"id" uuid NOT NULL,
 	"kind" "channel_kind" DEFAULT 'whatsapp' NOT NULL,
+	"app_id" text NOT NULL,
 	"waba_id" text NOT NULL,
 	"phone_number_id" text NOT NULL,
 	"display_phone" text,
@@ -242,7 +243,8 @@ CREATE UNIQUE INDEX "guides_active_unique" ON "guides" USING btree ("tenant_id",
 CREATE INDEX "guides_company_idx" ON "guides" USING btree ("tenant_id","company_id","period");--> statement-breakpoint
 CREATE INDEX "guides_due_idx" ON "guides" USING btree ("tenant_id","status","due_date");--> statement-breakpoint
 CREATE INDEX "portal_login_codes_contact_idx" ON "portal_login_codes" USING btree ("tenant_id","contact_id","created_at");--> statement-breakpoint
-CREATE INDEX "tenant_alerts_open_idx" ON "tenant_alerts" USING btree ("tenant_id","resolved_at","created_at");--> statement-breakpoint
+CREATE INDEX "tenant_alerts_open_idx" ON "tenant_alerts" USING btree ("tenant_id","resolved_at","created_at");
+--> statement-breakpoint
 
 ALTER TABLE tenant_settings
   ADD CONSTRAINT tenant_settings_reminder_days CHECK (reminder_days_before between 0 and 30),

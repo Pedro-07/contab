@@ -1,5 +1,5 @@
 {
-  "id": "ef8ae41b-54c4-4459-97f8-3dc1e81166ba",
+  "id": "ba11be00-b44f-473d-bf86-4b790e03a471",
   "prevId": "114380bb-273f-42a4-a1aa-a06710f2c643",
   "version": "7",
   "dialect": "postgresql",
@@ -2424,6 +2424,12 @@
           "primaryKey": false,
           "notNull": true,
           "default": "'whatsapp'"
+        },
+        "app_id": {
+          "name": "app_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
         },
         "waba_id": {
           "name": "waba_id",
