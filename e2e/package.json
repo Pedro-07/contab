@@ -7,7 +7,10 @@
     "typecheck": "tsc -p tsconfig.json"
   },
   "dependencies": {
-    "@contab/db": "workspace:*"
+    "@contab/adapters": "workspace:*",
+    "@contab/core": "workspace:*",
+    "@contab/db": "workspace:*",
+    "@contab/domain": "workspace:*"
   },
   "devDependencies": {
     "@playwright/test": "1.64.1",
