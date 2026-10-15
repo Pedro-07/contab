@@ -184,3 +184,16 @@ describe('fake', () => {
     ).rejects.toBeInstanceOf(WhatsAppError);
   });
 });
+
+describe('remetente do e-mail', () => {
+  it('usa o nome do escritório com o endereço da plataforma, sem injeção', async () => {
+    const { fromHeader } = await import('../email/index');
+    expect(fromHeader('Plataforma <nao-responda@x.test>', 'Contact Consultoria')).toBe(
+      '"Contact Consultoria" <nao-responda@x.test>',
+    );
+    expect(fromHeader('nao-responda@x.test', 'A "B"\r\nBcc: c@d')).toBe(
+      '"A B Bcc: c@d" <nao-responda@x.test>',
+    );
+    expect(fromHeader('Plataforma <nao-responda@x.test>')).toBe('Plataforma <nao-responda@x.test>');
+  });
+});

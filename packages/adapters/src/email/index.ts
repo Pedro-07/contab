@@ -13,7 +13,25 @@ export type EmailMessage = {
   html?: string;
   /** Evita envio duplicado quando o provedor suporta (Resend). */
   idempotencyKey?: string;
+  /** Nome no remetente (ex.: o escritório); o endereço é sempre o da plataforma. */
+  fromName?: string;
+  /** Para onde vão as respostas (ex.: e-mail do escritório). */
+  replyTo?: string;
+  attachments?: Array<{ fileName: string; contentType: string; content: Uint8Array }>;
 };
+
+/** Monta o remetente: nome escolhido + endereço da plataforma (AUTH_EMAIL_FROM). */
+export function fromHeader(platformFrom: string, fromName?: string): string {
+  if (!fromName) return platformFrom;
+  const address = /<([^>]+)>/.exec(platformFrom)?.[1] ?? platformFrom.trim();
+  // Sem aspas, sinais de endereço nem quebras de linha (evita injeção de cabeçalho).
+  const name = fromName
+    .replace(/["<>\\]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 80);
+  return name ? `"${name}" <${address}>` : platformFrom;
+}
 
 export interface EmailSender {
   send(message: EmailMessage): Promise<void>;
@@ -52,11 +70,20 @@ export function createEmailSender(config: EmailConfig): EmailSender {
         await withRetry(async () => {
           const { error } = await resend.emails.send(
             {
-              from: config.AUTH_EMAIL_FROM,
+              from: fromHeader(config.AUTH_EMAIL_FROM, message.fromName),
               to: message.to,
               subject: message.subject,
               text: message.text,
               ...(message.html ? { html: message.html } : {}),
+              ...(message.replyTo ? { replyTo: message.replyTo } : {}),
+              ...(message.attachments?.length
+                ? {
+                    attachments: message.attachments.map((a) => ({
+                      filename: a.fileName,
+                      content: Buffer.from(a.content),
+                    })),
+                  }
+                : {}),
             },
             message.idempotencyKey ? { idempotencyKey: message.idempotencyKey } : undefined,
           );
@@ -88,11 +115,21 @@ export function createEmailSender(config: EmailConfig): EmailSender {
     async send(message) {
       await withRetry(async () => {
         await transport.sendMail({
-          from: config.AUTH_EMAIL_FROM,
+          from: fromHeader(config.AUTH_EMAIL_FROM, message.fromName),
           to: message.to,
           subject: message.subject,
           text: message.text,
           ...(message.html ? { html: message.html } : {}),
+          ...(message.replyTo ? { replyTo: message.replyTo } : {}),
+          ...(message.attachments?.length
+            ? {
+                attachments: message.attachments.map((a) => ({
+                  filename: a.fileName,
+                  content: Buffer.from(a.content),
+                  contentType: a.contentType,
+                })),
+              }
+            : {}),
         });
       });
       logger.info({ provider: 'smtp' }, 'e-mail enviado');
