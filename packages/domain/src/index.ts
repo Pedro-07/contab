@@ -10,3 +10,4 @@ export * from './guides';
 export * from './regua';
 export * from './delivery-channels';
 export * from './templates';
+export * from './fiscal';

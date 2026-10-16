@@ -12,7 +12,12 @@ import {
   GUIDE_TYPE_NAME,
 } from '@/lib/labels';
 import { requirePainel } from '@/server/painel';
-import { cancelGuideAction, markPaidAction, publishGuideAction } from '../actions';
+import {
+  cancelGuideAction,
+  markPaidAction,
+  publishGuideAction,
+  recalcGuideAction,
+} from '../actions';
 import { GuidePdfForm } from './guide-pdf-form';
 
 export default async function GuiaPage({ params }: { params: Promise<{ id: string }> }) {
@@ -51,11 +56,46 @@ export default async function GuiaPage({ params }: { params: Promise<{ id: strin
         <dd className="code">{guide.barcode ?? '—'}</dd>
         <dt>Pix</dt>
         <dd>{guide.pixCode ? 'Informado' : '—'}</dd>
+        <dt>Origem</dt>
+        <dd>
+          {guide.source === 'serpro'
+            ? 'Gerada pela Receita Federal'
+            : guide.source === 'lote'
+              ? 'Lote'
+              : 'Enviada pelo escritório'}
+          {guide.externalNumber && (
+            <span className="muted"> · documento {guide.externalNumber}</span>
+          )}
+        </dd>
         <dt>PDF</dt>
         <dd>
           {pdfReady ? <a href={`/guias/${guide.id}/pdf`}>Baixar PDF</a> : 'Ainda não enviado'}
         </dd>
+        {guide.receiptStorageKey && (
+          <>
+            <dt>Comprovante</dt>
+            <dd>
+              <a href={`/guias/${guide.id}/comprovante`}>Baixar comprovante da Receita</a>
+            </dd>
+          </>
+        )}
       </dl>
+
+      {canEdit &&
+        guide.status === 'vencida' &&
+        guide.externalNumber &&
+        (guide.type === 'das_mei' || guide.type === 'das_simples') && (
+          <section className="card" aria-labelledby="atualizar">
+            <h2 id="atualizar">Guia vencida</h2>
+            <ActionForm action={recalcGuideAction} submitLabel="Atualizar guia na Receita">
+              <input type="hidden" name="guideId" value={guide.id} />
+              <p className="muted">
+                A Receita gera a guia com multa e juros de hoje; esta passa a substituída e o
+                cliente recebe a nova.
+              </p>
+            </ActionForm>
+          </section>
+        )}
 
       {canEdit && guide.status === 'rascunho' && (
         <section className="card" aria-labelledby="publicar">

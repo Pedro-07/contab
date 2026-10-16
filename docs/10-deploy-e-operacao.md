@@ -100,3 +100,33 @@ Até a aprovação de Tech Provider, cada escritório conecta o próprio número
 8. Em produção, `WHATSAPP_PROVIDER=cloud` (a configuração recusa outro valor).
 
 Para trocar o token ou o número, conectar de novo: a URL do webhook e o token de verificação também mudam, e é preciso atualizar no app da Meta.
+
+### Serpro (Integra Contador, incremento 4)
+
+**Ambientes do worker (`SERPRO_PROVIDER`):**
+
+- `fake` (padrão em dev, testes e CI): respostas gravadas do trial em `fixtures/serpro`. Não usa a rede.
+- `trial`: o ambiente de testes público da Serpro. Só aceita os exemplos da documentação; o adaptador troca o pedido pelo exemplo e devolve a resposta com a identidade do pedido. Cota baixa: serve para demonstração, não para carga.
+- `producao`: obrigatório com `APP_ENV=production` (a configuração recusa outro valor).
+
+**Conferir o trial ao vivo:** `pnpm serpro:trial` chama os 7 serviços, um a cada 8 s, e falha se o formato mudou. Rodar antes de mexer no adaptador e de vez em quando; fica fora do CI por causa da cota.
+
+**Preparar a produção (modo plataforma, contrato do Pedro):**
+
+1. Contratar o Integra Contador com o CNPJ da plataforma e baixar a consumer key e o consumer secret na Área do Cliente da Serpro.
+2. Ter o e-CNPJ (A1, arquivo `.pfx`) do mesmo CNPJ.
+3. Com `CRYPTO_PROVIDER=aws-kms` apontando para a chave de produção, cifrar cada segredo a partir de um arquivo (nada no terminal):
+   `pnpm serpro:cifrar consumer-key.txt`, `pnpm serpro:cifrar consumer-secret.txt`, `pnpm serpro:cifrar ecnpj.pfx`, `pnpm serpro:cifrar senha.txt`.
+4. Pôr as saídas em `SERPRO_CONSUMER_KEY_CIPHERTEXT`, `SERPRO_CONSUMER_SECRET_CIPHERTEXT`, `SERPRO_CERT_PFX_CIPHERTEXT` e `SERPRO_CERT_PASSWORD_CIPHERTEXT` no Railway, com `SERPRO_CONTRATANTE_CNPJ` e `SERPRO_PROVIDER=producao`. Apagar os arquivos em claro.
+5. O certificado só é decifrado em memória, no worker, a cada autenticação.
+
+**Conectar um escritório:** em **Conexões › Receita Federal**, o escritório escolhe:
+
+- **plataforma** (padrão): assina o termo de autorização no Assinador do Serpro, no computador dele, e envia o XML assinado com a validade. O certificado do escritório não é enviado. O sistema avisa 15 dias antes de o termo vencer e para a rotina quando vence.
+- **próprio**: informa a consumer key, o consumer secret e o e-CNPJ do escritório (exceção prevista no CLAUDE.md), tudo cifrado.
+
+Cada empresa-cliente precisa de procuração eletrônica no e-CAC para o CNPJ do escritório; sem ela, a ficha mostra o erro e o escritório recebe um alerta.
+
+**Rotina:** o `serpro.dispatch` roda de hora em hora e cria a rotina do mês de cada empresa ativa pelo regime (MEI: DAS no dia configurado; Simples e lucro presumido ou real: consulta a declaração uma vez por dia útil às 8 h, até achar ou passar do dia 20). Depois da guia, consulta o pagamento a cada 3 dias úteis e no dia útil seguinte ao vencimento, por até 30 dias. Cinco falhas em 1 minuto pausam as chamadas do escritório por 15 minutos.
+
+**Custo:** cada chamada fica em `fiscal_calls` com o custo (só em produção) e o consumo do mês aparece na tela da conexão.

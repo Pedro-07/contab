@@ -1,0 +1,28 @@
+{
+  "contratante": {
+    "numero": "00000000000000",
+    "tipo": 2
+  },
+  "autorPedidoDados": {
+    "numero": "00000000000000",
+    "tipo": 2
+  },
+  "contribuinte": {
+    "numero": "00000000000000",
+    "tipo": 2
+  },
+  "pedidoDados": {
+    "idSistema": "PGDASD",
+    "idServico": "CONSULTIMADECREC14",
+    "versaoSistema": "1.0",
+    "dados": "{ \"periodoApuracao\": \"201801\" }"
+  },
+  "status": 200,
+  "mensagens": [
+    {
+      "codigo": "[Sucesso-PGDASD]",
+      "texto": "Requisição efetuada com sucesso."
+    }
+  ],
+  "dados": "{\"numeroDeclaracao\":\"00000000201801001\",\"recibo\":{\"nomeArquivo\":\"PGDASD-RECIBO-00000000201801001.pdf\",\"pdf\":\"JVBERi0xLjQKJSBQREYgcmVkdXppZG8gcGFyYSBvIHJlcG9zaXTDs3JpbwolJUVPRgo=\"},\"declaracao\":{\"nomeArquivo\":\"PGDASD-DECLARACAO-00000000201801001.pdf\",\"pdf\":\"JVBERi0xLjQKJSBQREYgcmVkdXppZG8gcGFyYSBvIHJlcG9zaXTDs3JpbwolJUVPRgo=\"},\"maed\":{\"nomeArquivoNotificacao\":\"PGDASD-NOTIFICACAO-MAED-00000000201801001.pdf\",\"pdfNotificacao\":\"JVBERi0xLjQKJSBQREYgcmVkdXppZG8gcGFyYSBvIHJlcG9zaXTDs3JpbwolJUVPRgo=\",\"nomeArquivoDarf\":\"PGDASD-DARF-MAED-00000000201801001.pdf\",\"pdfDarf\":\"JVBERi0xLjQKJSBQREYgcmVkdXppZG8gcGFyYSBvIHJlcG9zaXTDs3JpbwolJUVPRgo=\"}}"
+}

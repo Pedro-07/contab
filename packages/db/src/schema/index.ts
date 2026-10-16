@@ -4,3 +4,4 @@ export * from './clients';
 export * from './documents';
 export * from './messaging';
 export * from './guides';
+export * from './fiscal';

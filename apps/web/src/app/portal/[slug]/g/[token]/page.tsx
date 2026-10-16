@@ -10,8 +10,15 @@ import { CopyButton } from './copy-button';
  * Link seguro sem login (RN14): Pix com QR, linha digitável e PDF. O escritório vem do
  * subdomínio; link de outro escritório, vencido ou além do limite não mostra nada da guia.
  */
-export default async function LinkSeguroPage({ params }: { params: Promise<{ token: string }> }) {
+export default async function LinkSeguroPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ token: string }>;
+  searchParams: Promise<{ atualizacao?: string }>;
+}) {
   const { token } = await params;
+  const { atualizacao } = await searchParams;
   const tenant = await getPortalTenant();
   const view = await openSecureLink(asTenantId(tenant.id), token, await getRequestMeta());
 
@@ -48,7 +55,31 @@ export default async function LinkSeguroPage({ params }: { params: Promise<{ tok
         <dt>Vencimento</dt>
         <dd>{formatIsoDate(view.dueDate)}</dd>
       </dl>
-      {view.overdue && (
+      {atualizacao === 'pedido' && (
+        <p role="status" className="success">
+          Estamos gerando sua guia atualizada. Ela chega pelo WhatsApp ou e-mail em instantes.
+        </p>
+      )}
+      {atualizacao === 'limite' && (
+        <p role="alert" className="alert">
+          Esta guia já foi atualizada 3 vezes hoje. Fale com o escritório.
+        </p>
+      )}
+      {atualizacao === 'indisponivel' && (
+        <p role="alert" className="alert">
+          Não foi possível atualizar esta guia por aqui. Fale com o escritório.
+        </p>
+      )}
+      {view.overdue && view.recalculable && atualizacao !== 'pedido' && (
+        <section className="card" aria-labelledby="atualizar">
+          <h2 id="atualizar">Esta guia venceu</h2>
+          <p>Gere a guia com o valor atualizado de hoje (com multa e juros) e pague por ela.</p>
+          <form method="post" action={`/g/${token}/atualizar`}>
+            <button type="submit">Atualizar guia</button>
+          </form>
+        </section>
+      )}
+      {view.overdue && !view.recalculable && (
         <p role="alert" className="alert">
           Esta guia venceu. Fale com o escritório antes de pagar: pode ser preciso atualizar o
           valor.

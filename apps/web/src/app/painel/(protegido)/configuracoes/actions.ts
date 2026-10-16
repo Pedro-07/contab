@@ -12,6 +12,7 @@ export async function saveSettingsAction(
       reminderDaysBefore: formString(formData, 'reminderDaysBefore'),
       deliveryHour: formString(formData, 'deliveryHour'),
       replyToEmail: formString(formData, 'replyToEmail'),
+      meiGenerationDay: formString(formData, 'meiGenerationDay'),
     });
     return 'Configurações salvas.';
   });

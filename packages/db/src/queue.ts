@@ -26,6 +26,18 @@ export const JOBS = {
   'regua.tenant': tenantJobPayload,
   'webhook.meta.process': tenantJobPayload.extend({ eventId: z.uuid() }),
   'templates.sync': tenantJobPayload.extend({ channelId: z.uuid() }),
+  // Serpro (incremento 4): conexão, rotina do escritório, rotina de uma empresa e recálculo.
+  'serpro.connect': tenantJobPayload.extend({ connectionId: z.uuid() }),
+  'serpro.tenant': tenantJobPayload,
+  'serpro.watch': tenantJobPayload.extend({
+    watchId: z.uuid(),
+    trigger: z.enum(['rotina', 'buscar_agora']),
+  }),
+  'serpro.recalc': tenantJobPayload.extend({
+    guideId: z.uuid(),
+    requestedBy: z.enum(['cliente', 'escritorio']),
+    attempt: z.number().int().min(1).max(3).default(1),
+  }),
 } as const;
 
 /**
@@ -34,12 +46,16 @@ export const JOBS = {
  */
 export const PLATFORM_JOBS = {
   'regua.dispatch': z.object({}).loose(),
+  'serpro.dispatch': z.object({}).loose(),
 } as const;
 
 export type PlatformJobName = keyof typeof PLATFORM_JOBS;
 
 /** Agenda do despacho da régua: a cada 15 minutos. */
 export const REGUA_DISPATCH_CRON = '*/15 * * * *';
+
+/** Agenda do despacho da rotina da Serpro: de hora em hora (a consulta em si é diária, S1). */
+export const SERPRO_DISPATCH_CRON = '5 * * * *';
 
 export type JobName = keyof typeof JOBS;
 export type JobPayload<N extends JobName> = z.infer<(typeof JOBS)[N]>;
@@ -81,14 +97,15 @@ export async function enqueue<N extends JobName>(
   tx: TenantTx,
   name: N,
   payload: Omit<JobPayload<N>, 'tenantId'>,
-  options: { startAfterSeconds?: number } = {},
+  options: { startAfterSeconds?: number; singletonKey?: string; retryLimit?: number } = {},
 ): Promise<string | null> {
   const data = JOBS[name].parse({ ...payload, tenantId: ctx.tenantId });
   return boss.send(name, data, {
     db: transactionalDb(tx),
-    retryLimit: 5,
+    retryLimit: options.retryLimit ?? 5,
     retryBackoff: true,
     ...(options.startAfterSeconds ? { startAfter: options.startAfterSeconds } : {}),
+    ...(options.singletonKey ? { singletonKey: options.singletonKey } : {}),
   });
 }
 

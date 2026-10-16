@@ -4,8 +4,10 @@
  */
 import { createCipher } from '@contab/adapters/crypto';
 import type { EmailMessage } from '@contab/adapters/email';
+import { createFakeTransport, type FakeTransport } from '@contab/adapters/serpro';
 import { createFakeProvider, signBody } from '@contab/adapters/whatsapp';
 import { connectWhatsApp, receiveWhatsAppWebhook, type DeliveryDeps } from '@contab/core';
+import type { FiscalDeps } from '@contab/core/serpro-worker';
 import type { TenantContext } from '@contab/db';
 import { JOBS, type JobName } from '@contab/db/queue';
 import { createJobs } from '@contab/worker/jobs';
@@ -13,14 +15,18 @@ import { randomBytes, randomUUID } from 'node:crypto';
 import type { PgBoss } from 'pg-boss';
 import { testStorage } from './helpers';
 
-export type TestDeps = DeliveryDeps & {
-  whatsapp: ReturnType<typeof createFakeProvider>;
-  outbox: EmailMessage[];
-  painelUrl: string;
-};
+export type TestDeps = DeliveryDeps &
+  FiscalDeps & {
+    whatsapp: ReturnType<typeof createFakeProvider>;
+    /** Serpro simulada (respostas gravadas do trial). */
+    serproFake: FakeTransport;
+    outbox: EmailMessage[];
+    painelUrl: string;
+  };
 
 export function testDeliveryDeps(boss: PgBoss, now?: () => Date): TestDeps {
   const outbox: EmailMessage[] = [];
+  const serproFake = createFakeTransport();
   return {
     boss,
     storage: testStorage(),
@@ -34,6 +40,13 @@ export function testDeliveryDeps(boss: PgBoss, now?: () => Date): TestDeps {
     portalOrigin: (slug) => `http://${slug}.localhost:3000`,
     linkSecret: process.env.BETTER_AUTH_SECRET!,
     painelUrl: 'http://app.localhost:3000',
+    serproFake,
+    serpro: {
+      ambiente: 'fake',
+      contratanteCnpj: '11222333000181',
+      platformTransport: serproFake,
+      ownTransport: () => serproFake,
+    },
     ...(now ? { now } : {}),
   };
 }

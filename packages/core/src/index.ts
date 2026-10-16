@@ -81,6 +81,7 @@ export {
   createGuide,
   getGuideDetail,
   getGuidePdfUrl,
+  getGuideReceiptUrl,
   listTenantGuides,
   markGuidePaid,
   publishGuide,
@@ -116,3 +117,17 @@ export {
   resolveTenantAlert,
   saveDeliverySettings,
 } from './alerts-settings';
+export {
+  connectFiscalOwn,
+  connectFiscalPlatform,
+  disconnectFiscal,
+  getCompanyFiscalStatus,
+  getFiscalConnectionView,
+  requestFiscalCheckNow,
+  requestRecalcByLink,
+  requestRecalcByStaff,
+  testFiscalConnection,
+  type FiscalConnectDeps,
+  type FiscalConnectionView,
+  type LinkRecalcResult,
+} from './fiscal';

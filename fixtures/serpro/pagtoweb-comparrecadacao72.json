@@ -1,0 +1,28 @@
+{
+  "contratante": {
+    "numero": "99999999999999",
+    "tipo": 2
+  },
+  "autorPedidoDados": {
+    "numero": "99999999999",
+    "tipo": 1
+  },
+  "contribuinte": {
+    "numero": "99999999999",
+    "tipo": 1
+  },
+  "pedidoDados": {
+    "idSistema": "PAGTOWEB",
+    "idServico": "COMPARRECADACAO72",
+    "versaoSistema": "1.0",
+    "dados": "{\"numeroDocumento\": \"99999999999999999\"}"
+  },
+  "status": 200,
+  "dados": "{\"pdf\":\"JVBERi0xLjQKJSBQREYgcmVkdXppZG8gcGFyYSBvIHJlcG9zaXTDs3JpbwolJUVPRgo=\"}",
+  "mensagens": [
+    {
+      "codigo": "Sucesso-PAGTOWEB-00000",
+      "texto": "Requisição efetuada com sucesso."
+    }
+  ]
+}

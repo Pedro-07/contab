@@ -58,3 +58,4 @@ Não existe `01-descoberta-e-indicadores.md`: a descoberta (hipóteses e indicad
 | Fundação multi-tenant | [incrementos/01-fundacao-multi-tenant.md](incrementos/01-fundacao-multi-tenant.md) |
 | Clientes e documentos | [incrementos/02-clientes-e-documentos.md](incrementos/02-clientes-e-documentos.md) |
 | Guias, templates e entrega | [incrementos/03-guias-templates-entrega.md](incrementos/03-guias-templates-entrega.md) |
+| Serpro: DAS, DCTFWeb, recálculo e pagamentos | [incrementos/04-serpro-das-dctfweb.md](incrementos/04-serpro-das-dctfweb.md) |

@@ -7,6 +7,7 @@ import {
   createGuide,
   markGuidePaid,
   publishGuide,
+  requestRecalcByStaff,
   requestGuidePdfUpload,
 } from '@contab/core';
 import { ForbiddenError, NotFoundError } from '@contab/db';
@@ -97,5 +98,17 @@ export async function cancelGuideAction(
   return runPainelAction(`/guias/${guideId}`, async (ctx) => {
     await cancelGuide(ctx, guideId, formString(formData, 'reason'));
     return 'Guia cancelada.';
+  });
+}
+
+/** O escritório pede a guia atualizada (RN2); a Receita gera pelo worker. */
+export async function recalcGuideAction(
+  _: ActionResult,
+  formData: FormData,
+): Promise<ActionResult> {
+  const guideId = formString(formData, 'guideId');
+  return runPainelAction(`/guias/${guideId}`, async (ctx) => {
+    await requestRecalcByStaff(ctx, await getBoss(), guideId);
+    return 'Pedido enviado à Receita. A guia atualizada chega ao cliente em instantes.';
   });
 }

@@ -6,7 +6,8 @@
     "./email": "./src/email/index.ts",
     "./crypto": "./src/crypto/index.ts",
     "./storage": "./src/storage/index.ts",
-    "./whatsapp": "./src/whatsapp/index.ts"
+    "./whatsapp": "./src/whatsapp/index.ts",
+    "./serpro": "./src/serpro/index.ts"
   },
   "scripts": {
     "typecheck": "tsc -p tsconfig.json"
@@ -18,7 +19,9 @@
     "@contab/config": "workspace:*",
     "@contab/domain": "workspace:*",
     "nodemailer": "10.1.1",
-    "resend": "6.33.0"
+    "pdfjs-dist": "6.3.289",
+    "resend": "6.33.0",
+    "zod": "4.6.7"
   },
   "devDependencies": {
     "@types/node": "26.6.5",

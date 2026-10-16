@@ -21,3 +21,18 @@ export async function dispatchRegua(boss: PgBoss): Promise<number> {
   }
   return tenants.length;
 }
+
+/** Despacho da rotina da Serpro (incremento 4): um serpro.tenant por escritório, por hora. */
+export async function dispatchSerpro(boss: PgBoss): Promise<number> {
+  const tenants = await listActiveTenantIds();
+  for (const tenantId of tenants) {
+    await enqueueForTenant(
+      boss,
+      tenantId,
+      'serpro.tenant',
+      {},
+      { singletonKey: `serpro:${tenantId}`, singletonSeconds: 50 * 60 },
+    );
+  }
+  return tenants.length;
+}

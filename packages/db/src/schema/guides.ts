@@ -49,6 +49,11 @@ export const guides = pgTable(
     pdfStorageKey: text(),
     pdfSha256: text(),
     pdfSizeBytes: bigint({ mode: 'number' }),
+    /** Número do documento na Receita (DAS, DARF): usado na baixa automática (PAGTOWEB). */
+    externalNumber: text(),
+    /** Comprovante de pagamento da Receita (incremento 4). */
+    receiptStorageKey: text(),
+    receiptSha256: text(),
     createdByUserId: uuid(),
     publishedAt: timestamp({ withTimezone: true }),
     paidAt: timestamp({ withTimezone: true }),
@@ -81,6 +86,13 @@ export const guides = pgTable(
     check(
       'guides_pdf_key_tenant',
       sql`${t.pdfStorageKey} is null or ${t.pdfStorageKey} like 'tenants/' || ${t.tenantId}::text || '/%'`,
+    ),
+    uniqueIndex('guides_external_number_unique')
+      .on(t.tenantId, t.externalNumber)
+      .where(sql`${t.externalNumber} is not null`),
+    check(
+      'guides_receipt_key_tenant',
+      sql`${t.receiptStorageKey} is null or ${t.receiptStorageKey} like 'tenants/' || ${t.tenantId}::text || '/%'`,
     ),
     index('guides_company_idx').on(t.tenantId, t.companyId, t.period),
     index('guides_due_idx').on(t.tenantId, t.status, t.dueDate),

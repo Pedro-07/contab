@@ -153,6 +153,8 @@ export const tenantSettings = pgTable('tenant_settings', {
   deliveryHour: integer().notNull().default(9),
   // Para onde vão as respostas dos e-mails enviados em nome do escritório.
   replyToEmail: text(),
+  // Dia do mês em que o DAS do MEI é gerado (S2, incremento 4).
+  meiGenerationDay: integer().notNull().default(5),
   updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
 });
 

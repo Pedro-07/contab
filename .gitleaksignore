@@ -2,3 +2,5 @@
 db4a68d0420e8a035ba2e2990425bd10fa51f3f3:.env.test:generic-api-key:11
 # App secret fictício dos testes (já trocado por valor gerado a cada execução).
 1e603df3bbe5c121dd8efa4ddbf5d20a0f677875:tests/integration/delivery-helpers.ts:generic-api-key:69
+# Consumer secret fictício do teste de certificado inválido (modo próprio da Serpro).
+909a49f0f0756401d37b6d40ba7bf14b4630f711:tests/integration/serpro.test.ts:generic-api-key:325

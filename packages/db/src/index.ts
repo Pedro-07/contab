@@ -20,3 +20,4 @@ export * from './repositories/channels';
 export * from './repositories/guides';
 export * from './repositories/deliveries';
 export * from './repositories/links-and-events';
+export * from './repositories/fiscal';

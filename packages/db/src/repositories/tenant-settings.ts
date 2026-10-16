@@ -17,3 +17,8 @@ export async function updateDeliverySettings(
 ): Promise<void> {
   await tx.update(tenantSettings).set({ ...settings, updatedAt: new Date() });
 }
+
+/** Dia de geração do DAS do MEI (S2). */
+export async function updateMeiGenerationDay(tx: TenantTx, day: number): Promise<void> {
+  await tx.update(tenantSettings).set({ meiGenerationDay: day, updatedAt: new Date() });
+}
