@@ -124,6 +124,9 @@ export function createProductionTransport(
 ): SerproTransport {
   return {
     ambiente: 'producao',
+    async ping() {
+      await authenticate(await loadCredentials());
+    },
     async send(request) {
       const credentials = await loadCredentials();
       const tokens = await authenticate(credentials);

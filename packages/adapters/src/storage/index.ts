@@ -86,6 +86,12 @@ export interface FileStorage {
   /** SHA-256 em hexadecimal, lendo o objeto em fluxo. */
   sha256(tenantId: string, key: string): Promise<string>;
   delete(tenantId: string, key: string): Promise<void>;
+  /** Grava um arquivo gerado no servidor (ex.: PDF da Serpro). Devolve o SHA-256. */
+  put(
+    tenantId: string,
+    key: string,
+    file: { bytes: Uint8Array; contentType: string; fileName: string },
+  ): Promise<{ sha256: string; size: number }>;
   /**
    * Só para dev e testes: cria o bucket se faltar e libera o envio direto do navegador
    * (PUT) a partir das origens dadas. Em produção, a regra de CORS do R2 é a do runbook.
@@ -190,6 +196,24 @@ export function createFileStorage(config: StorageConfig): FileStorage {
       const hash = createHash('sha256');
       for await (const chunk of object.Body as Readable) hash.update(chunk as Buffer);
       return hash.digest('hex');
+    },
+
+    async put(tenantId, key, file) {
+      assertTenantKey(tenantId, key);
+      await client.send(
+        new PutObjectCommand({
+          Bucket,
+          Key: key,
+          Body: file.bytes,
+          ContentType: file.contentType,
+          ContentLength: file.bytes.length,
+          ContentDisposition: contentDisposition(file.fileName),
+        }),
+      );
+      return {
+        sha256: createHash('sha256').update(file.bytes).digest('hex'),
+        size: file.bytes.length,
+      };
     },
 
     async delete(tenantId, key) {

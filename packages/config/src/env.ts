@@ -29,6 +29,18 @@ const serverEnvSchema = z
       .string()
       .regex(/^v\d+\.\d+$/)
       .default('v23.0'),
+    // Serpro (incremento 4): producao em produção; trial ou fake (respostas gravadas) fora dela.
+    SERPRO_PROVIDER: z.enum(['fake', 'trial', 'producao']).default('fake'),
+    // CNPJ do contrato da plataforma (modo plataforma).
+    SERPRO_CONTRATANTE_CNPJ: z
+      .string()
+      .regex(/^[0-9A-Z]{12}[0-9]{2}$/)
+      .default('11222333000181'),
+    // Contrato da plataforma, cifrados com a chave da plataforma (pnpm serpro:cifrar).
+    SERPRO_CONSUMER_KEY_CIPHERTEXT: z.string().optional(),
+    SERPRO_CONSUMER_SECRET_CIPHERTEXT: z.string().optional(),
+    SERPRO_CERT_PFX_CIPHERTEXT: z.string().optional(),
+    SERPRO_CERT_PASSWORD_CIPHERTEXT: z.string().optional(),
     LOG_LEVEL: z
       .enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'])
       .default('info'),
@@ -67,6 +79,26 @@ const serverEnvSchema = z
         code: 'custom',
         path: ['WHATSAPP_PROVIDER'],
         message: 'produção exige cloud',
+      });
+    }
+    if (env.APP_ENV === 'production' && env.SERPRO_PROVIDER !== 'producao') {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['SERPRO_PROVIDER'],
+        message: 'produção exige producao',
+      });
+    }
+    if (
+      env.SERPRO_PROVIDER === 'producao' &&
+      (!env.SERPRO_CONSUMER_KEY_CIPHERTEXT ||
+        !env.SERPRO_CONSUMER_SECRET_CIPHERTEXT ||
+        !env.SERPRO_CERT_PFX_CIPHERTEXT ||
+        !env.SERPRO_CERT_PASSWORD_CIPHERTEXT)
+    ) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['SERPRO_CONSUMER_KEY_CIPHERTEXT'],
+        message: 'contrato e certificado da plataforma obrigatórios com producao',
       });
     }
     // Chave local só serve para dados fictícios (P17).

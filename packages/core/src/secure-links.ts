@@ -46,6 +46,8 @@ export type SecureLinkView =
       barcode: string | null;
       pixCode: string | null;
       hasPdf: boolean;
+      /** DAS vencido gerado pela Receita: o cliente pode pedir a guia atualizada (CA2). */
+      recalculable: boolean;
     };
 
 /** Abre o link: confere validade e conta a abertura. */
@@ -79,6 +81,10 @@ export async function openSecureLink(
       barcode: guide.barcode,
       pixCode: guide.pixCode,
       hasPdf: Boolean(guide.pdfStorageKey && guide.pdfSha256),
+      recalculable:
+        guide.status === 'vencida' &&
+        (guide.type === 'das_mei' || guide.type === 'das_simples') &&
+        !!guide.externalNumber,
     };
   });
   if (view.state === 'invalido') {

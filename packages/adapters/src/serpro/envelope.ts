@@ -35,6 +35,8 @@ export type SerproEnvelope = { status: number; mensagens: SerproMessage[]; dados
 export interface SerproTransport {
   readonly ambiente: SerproAmbiente;
   send(request: SerproRequest): Promise<SerproEnvelope>;
+  /** Só autentica (teste de conexão do modo próprio). */
+  ping?(): Promise<void>;
 }
 
 export type SerproErrorKind =

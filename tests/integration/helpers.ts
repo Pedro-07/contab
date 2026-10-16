@@ -97,6 +97,7 @@ export async function runVerifyJob(tenantId: string, versionId: string) {
     }),
     portalOrigin: (slug) => `http://${slug}.localhost:3000`,
     linkSecret: process.env.BETTER_AUTH_SECRET!,
+    serpro: undefined as never,
   }).find((j) => j.name === 'document.verify')!;
   await job.run({ id: randomUUID(), data: { tenantId, versionId } });
 }

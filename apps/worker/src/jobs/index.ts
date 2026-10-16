@@ -10,13 +10,21 @@ import {
   verifyDocumentVersion,
   type DeliveryDeps,
 } from '@contab/core';
+import {
+  runSerproConnect,
+  runSerproRecalc,
+  runSerproTenant,
+  runSerproWatch,
+  type FiscalDeps,
+} from '@contab/core/serpro-worker';
 import { defineJob, type JobDefinition } from '../define-job';
 
-export type WorkerDeps = DeliveryDeps & {
-  email: EmailSender;
-  painelUrl: string;
-  storage: FileStorage;
-};
+export type WorkerDeps = DeliveryDeps &
+  FiscalDeps & {
+    email: EmailSender;
+    painelUrl: string;
+    storage: FileStorage;
+  };
 
 /** Todos os jobs de tenant do worker. Cada um passa pelo envelope de defineJob. */
 export function createJobs(deps: WorkerDeps): JobDefinition[] {
@@ -42,5 +50,18 @@ export function createJobs(deps: WorkerDeps): JobDefinition[] {
     defineJob('templates.sync', (tx, ctx, payload) =>
       syncTemplates(tx, ctx, deps, payload.channelId),
     ),
+    // Serpro (incremento 4): erro da Receita não lança; a rotina agenda a próxima tentativa.
+    defineJob('serpro.connect', async (tx, ctx, payload) => {
+      await runSerproConnect(tx, ctx, deps, payload.connectionId);
+    }),
+    defineJob('serpro.tenant', async (tx, ctx) => {
+      await runSerproTenant(tx, ctx, deps);
+    }),
+    defineJob('serpro.watch', async (tx, ctx, payload) => {
+      await runSerproWatch(tx, ctx, deps, payload.watchId, payload.trigger);
+    }),
+    defineJob('serpro.recalc', async (tx, ctx, payload) => {
+      await runSerproRecalc(tx, ctx, deps, payload);
+    }),
   ];
 }

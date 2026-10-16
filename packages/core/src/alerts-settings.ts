@@ -6,6 +6,7 @@ import {
   recordAudit,
   resolveAlert,
   updateDeliverySettings,
+  updateMeiGenerationDay,
   withTenant,
   type TenantContext,
 } from '@contab/db';
@@ -40,6 +41,7 @@ export async function getDeliverySettings(ctx: TenantContext) {
       reminderDaysBefore: s?.reminderDaysBefore ?? 3,
       deliveryHour: s?.deliveryHour ?? 9,
       replyToEmail: s?.replyToEmail ?? null,
+      meiGenerationDay: s?.meiGenerationDay ?? 5,
     };
   });
 }
@@ -57,6 +59,13 @@ const settingsSchema = z.object({
     .toLowerCase()
     .transform((v) => v || null)
     .refine((v) => v === null || z.email().safeParse(v).success, 'E-mail de resposta inválido.'),
+  // Dia do DAS do MEI (S2): até o dia 19, antes do vencimento do dia 20.
+  meiGenerationDay: z.coerce
+    .number()
+    .int()
+    .min(1, 'Use um dia de 1 a 19.')
+    .max(19, 'Use um dia de 1 a 19.')
+    .default(5),
 });
 
 export async function saveDeliverySettings(
@@ -70,13 +79,16 @@ export async function saveDeliverySettings(
   if (!parsed.success)
     throw new ClientInputError(parsed.error.issues[0]?.message ?? 'Dados inválidos.');
   await withTenant(ctx, async (tx) => {
-    await updateDeliverySettings(tx, parsed.data);
+    const { meiGenerationDay, ...delivery } = parsed.data;
+    await updateDeliverySettings(tx, delivery);
+    await updateMeiGenerationDay(tx, meiGenerationDay);
     await recordAudit(tx, ctx, {
       action: 'configuracao.entrega_alterada',
       resourceType: 'tenant_settings',
       metadata: {
         lembrete_dias: parsed.data.reminderDaysBefore,
         hora: parsed.data.deliveryHour,
+        dia_mei: parsed.data.meiGenerationDay,
       },
     });
   });
