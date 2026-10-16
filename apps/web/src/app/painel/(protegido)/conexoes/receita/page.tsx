@@ -81,7 +81,7 @@ export default async function ReceitaPage() {
         </p>
       )}
 
-      <details className="card" open={!c}>
+      <details className="card" open={!c || c.status !== 'ativa'}>
         <summary>Conectar pelo contrato da plataforma (recomendado)</summary>
         <ol>
           <li>Abra o termo de autorização no Assinador do Serpro, no computador do escritório.</li>
