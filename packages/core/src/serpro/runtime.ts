@@ -207,7 +207,8 @@ async function afterFailure(
       },
       now,
     );
-    const opened = breakerIsOpen(next, now) && !breakerIsOpen({ openUntil: connection.breakerOpenUntil }, now);
+    const opened =
+      breakerIsOpen(next, now) && !breakerIsOpen({ openUntil: connection.breakerOpenUntil }, now);
     Object.assign(connection, {
       breakerFailures: next.failures,
       breakerFirstFailureAt: next.firstFailureAt,
@@ -288,13 +289,15 @@ export async function ensureProcuradorToken(
       ? { ok: false, error: outcome.error }
       : { ok: false, error: new SerproError('indisponivel', true, null, 'ocupado') };
   }
-  await upsertFiscalCredential(
-    tx,
-    ctx.tenantId,
-    connection.id,
-    'serpro_procurador_token',
-    await deps.cipher.encrypt(new TextEncoder().encode(outcome.value.token), ctx.tenantId),
-  );
+  // Só a produção devolve token; fora dela o termo não gera nada para guardar.
+  if (outcome.value.token)
+    await upsertFiscalCredential(
+      tx,
+      ctx.tenantId,
+      connection.id,
+      'serpro_procurador_token',
+      await deps.cipher.encrypt(new TextEncoder().encode(outcome.value.token), ctx.tenantId),
+    );
   const expiresAt = outcome.value.expiresAt ?? new Date(nowOf(deps).getTime() + 24 * 3_600_000);
   await updateFiscalConnection(tx, connection.id, { procuradorTokenExpiresAt: expiresAt });
   connection.procuradorTokenExpiresAt = expiresAt;

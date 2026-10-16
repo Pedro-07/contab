@@ -400,5 +400,12 @@ export async function sendAuthorizationTerm(
 
 export { createTrialTransport } from './trial';
 export { createProductionTransport, type ProductionCredentials } from './production';
-export { createFakeTransport, type FakeHandler, type FakeTransport } from './fake';
+export {
+  createFakeTransport,
+  FAKE_ERRORS,
+  recording,
+  type FakeHandler,
+  type FakeTransport,
+} from './fake';
+export { simulateIdentity } from './simulate';
 export { readGuidePdf, type GuidePdfFields } from './pdf';
