@@ -1,0 +1,27 @@
+{
+  "contratante": {
+    "Numero": "00000000000100",
+    "Tipo": 2
+  },
+  "autorPedidoDados": {
+    "Numero": "00000000000100",
+    "Tipo": 2
+  },
+  "contribuinte": {
+    "Numero": "00000000000100",
+    "Tipo": 2
+  },
+  "pedidoDados": {
+    "idSistema": "PGMEI",
+    "idServico": "GERARDASCODBARRA22",
+    "dados": "{ \"periodoApuracao\": \"201901\" }"
+  },
+  "status": "200",
+  "mensagens": [
+    {
+      "codigo": "[Sucesso-PGMEI]",
+      "texto": "Requisição efetuada com sucesso."
+    }
+  ],
+  "dados": "[{\"cnpjCompleto\":\"00000000000100\",\"razaoSocial\":\"EXEMPLO\",\"detalhamento\":[{\"periodoApuracao\":\"201901\",\"numeroDocumento\":\"00000000000000000\",\"dataVencimento\":\"20190220\",\"dataLimiteAcolhimento\":\"20220831\",\"valores\":{\"principal\":55.9,\"multa\":11.18,\"juros\":10.71,\"total\":77.79},\"codigoDeBarras\":[\"000000000000\",\"000000000000\",\"000000000000\",\"000000000000\"],\"observacao1\":\"CPF: 000.000.000-00\",\"observacao2\":\"Tributos (R$): INSS 49,90 ICMS 1,00 ISS 5,00\",\"observacao3\":\"PGMEI(Versao:3.8.0)\",\"composicao\":[{\"periodoApuracao\":201901,\"codigo\":\"0151\",\"denominacao\":\"INSS - SIMPLES NACIONAL - MEI - 01/2019\",\"valores\":{\"principal\":49.9,\"multa\":9.98,\"juros\":9.56,\"total\":69.44}},{\"periodoApuracao\":201901,\"codigo\":\"0083\",\"denominacao\":\"ICMS - SIMPLES NACIONAL - MEI - PB - 01/2019\",\"valores\":{\"principal\":1,\"multa\":0.2,\"juros\":0.19,\"total\":1.39}},{\"periodoApuracao\":201901,\"codigo\":\"0125\",\"denominacao\":\"ISS - SIMPLES NACIONAL - MEI - SUME (PB) - 01/2019\",\"valores\":{\"principal\":5,\"multa\":1,\"juros\":0.96,\"total\":6.96}}]}]}]"
+}

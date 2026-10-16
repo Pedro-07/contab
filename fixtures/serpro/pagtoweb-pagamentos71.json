@@ -1,0 +1,28 @@
+{
+  "contratante": {
+    "numero": "99999999999999",
+    "tipo": 2
+  },
+  "autorPedidoDados": {
+    "numero": "99999999999999",
+    "tipo": 2
+  },
+  "contribuinte": {
+    "numero": "99999999999999",
+    "tipo": 2
+  },
+  "pedidoDados": {
+    "idSistema": "PAGTOWEB",
+    "idServico": "PAGAMENTOS71",
+    "versaoSistema": "1.0",
+    "dados": "{\"numeroDocumentoLista\":[\"9999999999\"],\"primeiroDaPagina\": 0,\"tamanhoDaPagina\": 100}"
+  },
+  "status": 200,
+  "dados": "[{\"numeroDocumento\":\"9999999999\",\"tipo\":{\"codigo\":\"4\",\"descricao\":\"DOCUMENTO DE ARRECADAÇÃO DE RECEITAS FEDERAIS\",\"descricaoAbreviada\":\"DARF\"},\"periodoApuracao\":\"2019-09-30T00:00:00-03:00\",\"dataArrecadacao\":\"2019-09-30T00:00:00-03:00\",\"dataVencimento\":\"2019-09-30T00:00:00-03:00\",\"receitaPrincipal\":{\"codigo\":\"481\",\"descricao\":\"IRRF - Juros e Comissões em Geral - Residentes no Exterior\",\"extensaoReceita\":null},\"referencia\":null,\"valorTotal\":369176.53,\"valorPrincipal\":369176.53,\"valorMulta\":null,\"valorJuros\":null,\"valorSaldoTotal\":null,\"valorSaldoPrincipal\":null,\"valorSaldoMulta\":null,\"valorSaldoJuros\":null,\"desmembramentos\":[{\"sequencial\":\"1\",\"receitaPrincipal\":{\"codigo\":\"481\",\"descricao\":\"IRRF - Juros e Comissões em Geral - Residentes no Exterior\",\"extensaoReceita\":null},\"periodoApuracao\":\"2019-09-30T00:00:00-03:00\",\"dataVencimento\":\"2019-09-30T00:00:00-03:00\",\"valorTotal\":null,\"valorPrincipal\":null,\"valorMulta\":null,\"valorJuros\":null,\"valorSaldoTotal\":null,\"valorSaldoPrincipal\":null,\"valorSaldoMulta\":null,\"valorSaldoJuros\":null}]}]",
+  "mensagens": [
+    {
+      "codigo": "Sucesso-PAGTOWEB-00000",
+      "texto": "Requisição efetuada com sucesso."
+    }
+  ]
+}

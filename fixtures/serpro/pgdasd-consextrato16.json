@@ -1,0 +1,28 @@
+{
+  "contratante": {
+    "numero": "00000000000000",
+    "tipo": 2
+  },
+  "autorPedidoDados": {
+    "numero": "00000000000000",
+    "tipo": 2
+  },
+  "contribuinte": {
+    "numero": "00000000000000",
+    "tipo": 2
+  },
+  "pedidoDados": {
+    "idSistema": "PGDASD",
+    "idServico": "CONSEXTRATO16",
+    "versaoSistema": "1.0",
+    "dados": "{ \"numeroDas\": \"07202136999997159\" }"
+  },
+  "status": 200,
+  "dados": "{\"numeroDas\":\"07202136999997159\",\"extrato\":{\"nomeArquivo\":\"PGDASD-EXTRATO-07202136999997159.pdf\",\"pdf\":\"JVBERi0xLjQKJSBQREYgcmVkdXppZG8gcGFyYSBvIHJlcG9zaXTDs3JpbwolJUVPRgo=\"}}",
+  "mensagens": [
+    {
+      "codigo": "[Sucesso-PGDASD]",
+      "texto": "Requisição efetuada com sucesso."
+    }
+  ]
+}

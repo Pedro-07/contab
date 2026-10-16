@@ -1,0 +1,32 @@
+{
+  "contratante": {
+    "numero": "00000000000000",
+    "tipo": 2
+  },
+  "autorPedidoDados": {
+    "numero": "00000000000000",
+    "tipo": 2
+  },
+  "contribuinte": {
+    "numero": "00000000000000",
+    "tipo": 2
+  },
+  "pedidoDados": {
+    "idSistema": "DCTFWEB",
+    "idServico": "CONSRECIBO32",
+    "versaoSistema": "1.0",
+    "dados": "{\"categoria\": 40,\"anoPA\":\"2027\",\"mesPA\":\"11\",\"numeroReciboEntrega\": 24573}"
+  },
+  "status": 200,
+  "dados": "{\"PDFByteArrayBase64\":\"JVBERi0xLjQKJSBQREYgcmVkdXppZG8gcGFyYSBvIHJlcG9zaXTDs3JpbwolJUVPRgo=\"}",
+  "mensagens": [
+    {
+      "codigo": "MG11",
+      "texto": "Relatório de Recibo de Declaração executado com sucesso."
+    },
+    {
+      "codigo": "Sucesso-DCTFWEB-MG00",
+      "texto": "Requisição efetuada com sucesso"
+    }
+  ]
+}
