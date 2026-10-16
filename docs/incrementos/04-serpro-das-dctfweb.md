@@ -1,6 +1,6 @@
 # Incremento 4 — Serpro: DAS, DCTFWeb, recálculo e pagamentos
 
-- **Status:** proposta, aguardando aprovação do Pedro
+- **Status:** aprovado em 16/10/2026; implementação no trial
 - **Período previsto:** 07/11/2026 a 23/11/2026 (P23, P24); começa antes, no ambiente trial
 - **Pronto quando:** CA2 passando; disjuntor testado; guias do MEI, do Simples e da DCTFWeb geradas e entregues sozinhas no trial; isolamento de cada job e endpoint novo; definição de pronto do `CLAUDE.md`
 - **Decisões que valem aqui:** ADRs 0001 a 0006; P1, P11, P22 a P25; RN1, RN2, RN8, RN11, RN16, RN17; I5
