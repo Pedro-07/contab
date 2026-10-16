@@ -45,6 +45,11 @@ const TENANT_TABLES = [
   'secure_link_accesses',
   'portal_login_codes',
   'tenant_alerts',
+  // Incremento 4
+  'fiscal_connections',
+  'fiscal_credentials',
+  'fiscal_calls',
+  'fiscal_watches',
 ];
 
 let app: Db;

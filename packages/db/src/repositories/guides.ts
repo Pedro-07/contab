@@ -18,6 +18,12 @@ export type GuideInput = {
   source: GuideSource;
   replacesGuideId?: string | null;
   createdByUserId: UserId | null;
+  // Guias geradas pela Serpro (incremento 4) já nascem com o PDF e o número do documento.
+  externalNumber?: string | null;
+  pdfStorageKey?: string | null;
+  pdfSha256?: string | null;
+  pdfSizeBytes?: number | null;
+  publishedAt?: Date | null;
 };
 
 export async function insertGuide(
