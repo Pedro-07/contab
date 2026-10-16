@@ -20,7 +20,9 @@
     "db:seed": "pnpm --filter @contab/db seed",
     "tenant:create": "pnpm --filter @contab/worker tenant:create",
     "storage:setup": "pnpm --filter @contab/worker storage:setup",
-    "portal:dev-login": "pnpm --filter @contab/worker portal:dev-login"
+    "portal:dev-login": "pnpm --filter @contab/worker portal:dev-login",
+    "serpro:trial": "pnpm --filter @contab/worker serpro:trial",
+    "serpro:cifrar": "pnpm --filter @contab/worker serpro:cifrar"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",

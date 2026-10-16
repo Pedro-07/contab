@@ -13,7 +13,9 @@
     "typecheck": "tsc -p tsconfig.json",
     "tenant:create": "tsx --env-file-if-exists=../../.env src/cli/tenant-create.ts",
     "storage:setup": "tsx --env-file-if-exists=../../.env src/cli/storage-setup.ts",
-    "portal:dev-login": "tsx --env-file-if-exists=../../.env src/cli/portal-dev-login.ts"
+    "portal:dev-login": "tsx --env-file-if-exists=../../.env src/cli/portal-dev-login.ts",
+    "serpro:trial": "tsx --env-file-if-exists=../../.env src/cli/serpro-trial.ts",
+    "serpro:cifrar": "tsx --env-file-if-exists=../../.env src/cli/serpro-cifrar.ts"
   },
   "dependencies": {
     "@contab/adapters": "workspace:*",

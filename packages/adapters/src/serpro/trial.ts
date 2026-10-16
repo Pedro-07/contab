@@ -25,8 +25,12 @@ const NINES = '99999999999999';
 type Scenario = {
   endpoint: SerproEndpoint;
   contratante: string;
+  /** Autor do pedido, quando o exemplo não usa o próprio contratante. */
+  autor?: string;
   contribuinte: string;
   dados: Record<string, unknown>;
+  /** Texto exato do campo dados, quando o trial só aceita o exemplo com espaços. */
+  dadosText?: string;
 };
 
 /** Cenários da documentação que o trial aceita (gravados em 16/10/2026). */
@@ -51,9 +55,10 @@ export const TRIAL_SCENARIOS: Record<string, Scenario> = {
   },
   GERARDAS12: {
     endpoint: 'Emitir',
-    contratante: ZERO,
-    contribuinte: ZERO,
+    contratante: MEI,
+    contribuinte: MEI,
     dados: { periodoApuracao: '201801' },
+    dadosText: '{ "periodoApuracao": "201801" }',
   },
   CONSRECIBO32: {
     endpoint: 'Consultar',
@@ -80,6 +85,7 @@ export const TRIAL_SCENARIOS: Record<string, Scenario> = {
   COMPARRECADACAO72: {
     endpoint: 'Emitir',
     contratante: NINES,
+    autor: '99999999999',
     contribuinte: '99999999999',
     dados: { numeroDocumento: '99999999999999999' },
   },
@@ -94,12 +100,21 @@ export function trialRequest(request: SerproRequest): SerproRequest {
     endpoint: scenario.endpoint,
     parties: {
       contratante: scenario.contratante,
-      autor: scenario.contratante,
+      autor: scenario.autor ?? scenario.contratante,
       contribuinte: scenario.contribuinte,
     },
     dados: scenario.dados,
     procuradorToken: null,
   };
+}
+
+/** Corpo do cenário; usa o texto exato do exemplo quando o trial exige. */
+function trialBody(service: string, scenario: SerproRequest): string {
+  const text = TRIAL_SCENARIOS[service]?.dadosText;
+  if (!text) return requestBody(scenario);
+  const body = JSON.parse(requestBody(scenario)) as { pedidoDados: { dados: string } };
+  body.pedidoDados.dados = text;
+  return JSON.stringify(body);
 }
 
 export function createTrialTransport(fetchImpl: typeof fetch = fetch): SerproTransport {
@@ -117,7 +132,7 @@ export function createTrialTransport(fetchImpl: typeof fetch = fetch): SerproTra
           accept: 'text/plain',
           'Content-Type': 'application/json',
         },
-        requestBody(scenario),
+        trialBody(request.service, scenario),
         fetchImpl,
       );
       return simulateIdentity(request, parseEnvelope(res.status, res.body));

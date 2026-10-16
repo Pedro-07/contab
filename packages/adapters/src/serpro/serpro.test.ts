@@ -210,7 +210,7 @@ describe('trial', () => {
     });
     expect(scenario).toMatchObject({
       endpoint: 'Emitir',
-      parties: { contratante: '00000000000000', contribuinte: '00000000000000' },
+      parties: { contratante: '00000000000100', contribuinte: '00000000000100' },
       dados: TRIAL_SCENARIOS.GERARDAS12!.dados,
       procuradorToken: null,
     });
