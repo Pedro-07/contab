@@ -550,6 +550,32 @@ describe('DAS do Simples (S1)', () => {
     expect(rows).toHaveLength(1);
   });
 
+  it('storage fora do ar: o erro aparece na rotina, a chamada fica registrada e a próxima tenta de novo', async () => {
+    const office = await newOffice();
+    const company = await newCompany(office, 'SN');
+    const watchId = await newWatch(office, company.id, 'SN');
+    const put = deps.storage.put;
+    deps.storage.put = () => Promise.reject(new Error('storage indisponível'));
+    try {
+      expect(await runWatch(office.id, watchId)).toBe('erro');
+    } finally {
+      deps.storage.put = put;
+    }
+    const watch = await watchRow(watchId);
+    expect(watch).toMatchObject({ status: 'aguardando', guide_id: null });
+    expect(watch.last_error).toMatch(/PDF não foi guardado/);
+    expect((await callsOf(office.id)).at(-1)).toMatchObject({
+      service: 'GERARDAS12',
+      status: 'falhou',
+      error_kind: 'armazenamento',
+    });
+
+    expect(await runWatch(office.id, watchId)).toBe('gerada');
+    const calls = (await callsOf(office.id)).filter((c) => c.service === 'GERARDAS12');
+    expect(calls).toMatchObject([{ status: 'sucesso' }]);
+    expect((await guideRow((await watchRow(watchId)).guide_id!)).status).toBe('publicada');
+  });
+
   it('passou do vencimento sem declaração: desiste e avisa', async () => {
     const office = await newOffice();
     const company = await newCompany(office, 'SN');

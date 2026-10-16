@@ -86,6 +86,27 @@ import {
 
 /** Espera depois de um erro temporário (o disjuntor cuida das quedas maiores). */
 const RETRY_AFTER_MS = 60 * 60_000;
+
+/** Código do erro quando o PDF que veio da Receita não pôde ser guardado no storage. */
+const STORAGE_FAILURE = 'armazenamento';
+
+/**
+ * Prepara a guia (grava o PDF no storage). Se o storage falhar, a chamada vira `falhou`
+ * (o custo fica registrado e a próxima tentativa emite de novo) e o erro volta como
+ * temporário, em vez de desfazer a transação e apagar o registro da chamada.
+ */
+async function prepareOrFail(
+  tx: TenantTx,
+  callId: string,
+  prepare: () => ReturnType<typeof prepareSerproGuide>,
+): Promise<Awaited<ReturnType<typeof prepareSerproGuide>> | SerproError> {
+  try {
+    return await prepare();
+  } catch {
+    await finishFiscalCall(tx, callId, { status: 'falhou', errorKind: STORAGE_FAILURE });
+    return new SerproError('indisponivel', true, null, STORAGE_FAILURE);
+  }
+}
 /** Recálculo: espera entre as 3 tentativas (CA2). */
 export const RECALC_RETRY_SECONDS = 60;
 /** Antecedência do aviso de termo de autorização perto de vencer. */
@@ -240,6 +261,8 @@ export function describeError(error: SerproError): string {
     case 'limite':
       return 'Limite de consultas da Receita atingido; tenta de novo mais tarde.';
     case 'indisponivel':
+      if (error.code === STORAGE_FAILURE)
+        return 'A Receita gerou a guia, mas o PDF não foi guardado; tenta de novo mais tarde.';
       return error.code === 'disjuntor'
         ? 'Consultas pausadas: a Receita não estava respondendo.'
         : 'A Receita não respondeu; tenta de novo mais tarde.';
@@ -418,7 +441,11 @@ async function storeGuide(
   timezone: string,
 ): Promise<WatchOutcome> {
   const now = nowOf(deps);
-  const prepared = await prepareSerproGuide(ctx, deps, company, watch.period, source);
+  const prepared = await prepareOrFail(tx, callId, () =>
+    prepareSerproGuide(ctx, deps, company, watch.period, source),
+  );
+  if (prepared instanceof SerproError)
+    return failWatch(tx, deps, watch, { ok: false, error: prepared, call: null }, timezone);
   if ('mismatch' in prepared) {
     // Sem vínculo, nada é gravado nem enviado (RN17).
     await updateWatch(tx, watch.id, {
@@ -563,12 +590,17 @@ async function storeReceipt(
   );
   if (!outcome.ok) return;
   const key = tenantKey(ctx.tenantId, 'guides', guide.id, `comprovante-${uuidv7()}`);
-  const stored = await deps.storage.put(ctx.tenantId, key, {
-    bytes: outcome.value,
-    contentType: 'application/pdf',
-    fileName: `comprovante-${guide.type}-${formatPeriod(guide.period).replace('/', '-')}.pdf`,
-  });
-  await setGuideReceipt(tx, guide.id, { storageKey: key, sha256: stored.sha256 });
+  try {
+    const stored = await deps.storage.put(ctx.tenantId, key, {
+      bytes: outcome.value,
+      contentType: 'application/pdf',
+      fileName: `comprovante-${guide.type}-${formatPeriod(guide.period).replace('/', '-')}.pdf`,
+    });
+    await setGuideReceipt(tx, guide.id, { storageKey: key, sha256: stored.sha256 });
+  } catch {
+    // A baixa continua valendo: a guia só fica sem o comprovante e a chamada, `falhou`.
+    await finishFiscalCall(tx, outcome.call.id, { status: 'falhou', errorKind: STORAGE_FAILURE });
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -633,7 +665,10 @@ export async function runSerproRecalc(
     return 'nada_a_fazer';
   }
 
-  const prepared = await prepareSerproGuide(ctx, deps, company, old.period, emitted.value);
+  const prepared = await prepareOrFail(tx, emitted.call.id, () =>
+    prepareSerproGuide(ctx, deps, company, old.period, emitted.value),
+  );
+  if (prepared instanceof SerproError) return retryOrManual(tx, ctx, deps, old, input, prepared);
   if ('mismatch' in prepared || !prepared.ok) {
     await raiseAlert(tx, ctx.tenantId, {
       kind: 'recalculo_revisao',
