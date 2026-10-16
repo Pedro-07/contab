@@ -1,6 +1,6 @@
 # Incremento 4 — Serpro: DAS, DCTFWeb, recálculo e pagamentos
 
-- **Status:** aprovado em 16/10/2026; implementação no trial
+- **Status:** aprovado e implementado no trial em 16/10/2026 (branch `feat/serpro`); produção depende do contrato
 - **Período previsto:** 07/11/2026 a 23/11/2026 (P23, P24); começa antes, no ambiente trial
 - **Pronto quando:** CA2 passando; disjuntor testado; guias do MEI, do Simples e da DCTFWeb geradas e entregues sozinhas no trial; isolamento de cada job e endpoint novo; definição de pronto do `CLAUDE.md`
 - **Decisões que valem aqui:** ADRs 0001 a 0006; P1, P11, P22 a P25; RN1, RN2, RN8, RN11, RN16, RN17; I5
@@ -104,3 +104,23 @@ A DCTFWeb devolve só o PDF, e nenhum serviço de DAS devolve o Pix copia e cola
 | S1 | **Frequência:** uma consulta por dia útil por empresa, do dia 1 até achar a declaração do mês ou chegar o vencimento; achou, para. Mais o botão "Buscar agora" na ficha. Custo estimado de R$ 1 a 3 por empresa por mês. |
 | S2 | **DAS do MEI:** gerado no dia 5 de cada mês (configurável por escritório), para a competência anterior. |
 | S3 | **Leitura do PDF:** sim. Linha digitável, Pix copia e cola e, na DCTFWeb, valor e vencimento saem do texto do PDF; leitura falha vai para revisão (RN17). |
+
+## 10. Registro da implementação (16/10/2026)
+
+**Feito:** adaptador (trial, produção e gravado) em `packages/adapters/src/serpro`; migração `0004_serpro.sql` com rollback; rotina no worker (`@contab/core/serpro-worker`, jobs `serpro.dispatch`, `serpro.tenant`, `serpro.watch`, `serpro.recalc`, `serpro.connect`); telas Conexões › Receita Federal, situação e "Buscar agora" na ficha, "Atualizar guia" no painel e no link seguro, dia do MEI em Configurações; `pnpm serpro:trial` e `pnpm serpro:cifrar`. Testes: 30 de unidade e contrato, 26 de integração (incluindo isolamento) e 1 E2E. Os 7 serviços passam ao vivo no trial.
+
+**O que mudou em relação ao plano:**
+
+- Os segredos da Serpro ficam em `fiscal_credentials` (tabela nova), e não em `credentials`: a tabela do WhatsApp exige o canal.
+- **S3, Pix:** o Pix copia e cola não está no texto do PDF, só na imagem do QR Code. A guia sai com a linha digitável conferida (dígitos e valor iguais ao da Receita); o Pix fica como pendência (ler o QR exige renderizar o PDF).
+- **Pagamento [recomendação, confirmar]:** consulta a cada 3 dias úteis e no dia útil seguinte ao vencimento, por até 30 dias (cerca de 6 consultas por guia, perto de R$ 1,50). O plano não fixava a frequência.
+- **Recálculo:** a data de consolidação é hoje (ou o próximo dia útil); a guia nova vale até essa data. Recálculo só de DAS (MEI e Simples); DCTFWeb vencida segue pelo escritório.
+- O E2E cobre o DAS do Simples: é o único exemplo do trial com linha digitável real. MEI e DCTFWeb do trial vêm com a linha zerada e vão para revisão (coberto nos testes de integração).
+- Guia que sai da Receita mas não confere (leitura do PDF ou vínculo) fica em rascunho com alerta; o escritório confere o PDF e publica.
+
+**Pendências:**
+
+- **[pendente] Contrato e e-CNPJ do Pedro** para testar a produção. O transporte de produção (autenticação mTLS, token do procurador) segue a documentação, mas não foi exercitado.
+- **[pendente] Modelo do termo de autorização:** hoje o escritório envia o XML já assinado; gerar o termo pronto para assinar depende de confirmar o formato na documentação da Serpro (a página estava fora do ar em 16/10).
+- **[pendente] Respostas reais de "sem declaração" e "sem procuração":** a classificação usa o status e o texto; confirmar com as primeiras chamadas em produção.
+- **Pix do QR Code** (acima) e feriados no cálculo de dia útil (hoje só fim de semana).
