@@ -113,7 +113,7 @@ A DCTFWeb devolve só o PDF, e nenhum serviço de DAS devolve o Pix copia e cola
 
 - Os segredos da Serpro ficam em `fiscal_credentials` (tabela nova), e não em `credentials`: a tabela do WhatsApp exige o canal.
 - **S3, Pix:** o Pix copia e cola não está no texto do PDF, só na imagem do QR Code. A guia sai com a linha digitável conferida (dígitos e valor iguais ao da Receita); o Pix fica como pendência (ler o QR exige renderizar o PDF).
-- **Pagamento [recomendação, confirmar]:** consulta a cada 3 dias úteis e no dia útil seguinte ao vencimento, por até 30 dias (cerca de 6 consultas por guia, perto de R$ 1,50). O plano não fixava a frequência.
+- **Pagamento [confirmado pelo Pedro em 16/10]:** consulta a cada 3 dias úteis e no dia útil seguinte ao vencimento, por até 30 dias (cerca de 6 consultas por guia, perto de R$ 1,50). O plano não fixava a frequência.
 - **Recálculo:** a data de consolidação é hoje (ou o próximo dia útil); a guia nova vale até essa data. Recálculo só de DAS (MEI e Simples); DCTFWeb vencida segue pelo escritório.
 - O E2E cobre o DAS do Simples: é o único exemplo do trial com linha digitável real. MEI e DCTFWeb do trial vêm com a linha zerada e vão para revisão (coberto nos testes de integração).
 - Guia que sai da Receita mas não confere (leitura do PDF ou vínculo) fica em rascunho com alerta; o escritório confere o PDF e publica.
@@ -123,4 +123,6 @@ A DCTFWeb devolve só o PDF, e nenhum serviço de DAS devolve o Pix copia e cola
 - **[pendente] Contrato e e-CNPJ do Pedro** para testar a produção. O transporte de produção (autenticação mTLS, token do procurador) segue a documentação, mas não foi exercitado.
 - **[pendente] Modelo do termo de autorização:** hoje o escritório envia o XML já assinado; gerar o termo pronto para assinar depende de confirmar o formato na documentação da Serpro (a página estava fora do ar em 16/10).
 - **[pendente] Respostas reais de "sem declaração" e "sem procuração":** a classificação usa o status e o texto; confirmar com as primeiras chamadas em produção.
+- **[pendente] Comprovante com storage fora do ar:** se o PDF do comprovante não for guardado, a baixa vale e a chamada fica `falhou`, mas o comprovante não é pedido de novo sozinho. A guia (emissão) já tenta de novo e mostra o erro na rotina.
+- **[pendente] Seed:** o João Fictício do Alfa nasce sem autorização de WhatsApp (sem registro em `contact_consents`), então as guias dele não saem no ambiente local; pela P25 deveria nascer autorizado.
 - **Pix do QR Code** (acima) e feriados no cálculo de dia útil (hoje só fim de semana).
