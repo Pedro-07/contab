@@ -49,6 +49,9 @@ export default async function ConexoesPage() {
     <main>
       <h1>Conexões › WhatsApp</h1>
       <p>
+        <a href="/conexoes/receita">Conexões › Receita Federal →</a>
+      </p>
+      <p>
         As mensagens saem pelo número do próprio escritório, pela API oficial da Meta. Não use
         aplicativos não oficiais nesse número.
       </p>

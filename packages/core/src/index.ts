@@ -81,6 +81,7 @@ export {
   createGuide,
   getGuideDetail,
   getGuidePdfUrl,
+  getGuideReceiptUrl,
   listTenantGuides,
   markGuidePaid,
   publishGuide,

@@ -34,6 +34,7 @@ import {
   visibilityAction,
 } from '../actions';
 import { CompanyFields } from '../company-fields';
+import { FiscalSection } from './fiscal-section';
 import { RefreshWhilePending, UploadForm } from './upload-form';
 
 export default async function EmpresaPage({ params }: { params: Promise<{ id: string }> }) {
@@ -102,6 +103,8 @@ export default async function EmpresaPage({ params }: { params: Promise<{ id: st
           </>
         )}
       </section>
+
+      <FiscalSection ctx={ctx} companyId={company.id} canCheck={canDocs} />
 
       <section aria-labelledby="contatos">
         <h2 id="contatos">Contatos</h2>

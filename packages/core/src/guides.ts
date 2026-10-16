@@ -370,3 +370,22 @@ export async function getGuidePdfUrl(
 }
 
 export type { GuideStatus };
+
+/** URL de 5 min do comprovante de pagamento da Receita (incremento 4), para a equipe. */
+export async function getGuideReceiptUrl(
+  ctx: TenantContext,
+  storage: FileStorage,
+  guideId: string,
+): Promise<string> {
+  await requireViewer(ctx);
+  return logNotFound(ctx, () =>
+    withTenant(ctx, async (tx) => {
+      const guide = await getGuide(tx, uuidOrNotFound(guideId, 'guide'));
+      if (!guide.receiptStorageKey) throw new NotFoundError('guide_receipt', guide.id);
+      return storage.presignDownload(ctx.tenantId, guide.receiptStorageKey, {
+        fileName: `comprovante-${guide.type}-${guide.period.slice(0, 7)}.pdf`,
+        contentType: 'application/pdf',
+      });
+    }),
+  );
+}

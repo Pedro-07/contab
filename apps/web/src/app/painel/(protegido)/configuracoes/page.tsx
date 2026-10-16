@@ -52,6 +52,20 @@ export default async function ConfiguracoesPage() {
           Os e-mails saem com o nome do escritório; quando o cliente responde, a resposta vai para
           este endereço. Fuso: {s.timezone}.
         </p>
+        <label htmlFor="meiGenerationDay">Dia de gerar o DAS do MEI</label>
+        <input
+          id="meiGenerationDay"
+          name="meiGenerationDay"
+          type="number"
+          min={1}
+          max={19}
+          required
+          defaultValue={s.meiGenerationDay}
+        />
+        <p className="muted">
+          Com a Receita Federal conectada, o DAS do mês anterior sai sozinho nesse dia e vai para o
+          cliente. O vencimento é dia 20.
+        </p>
       </ActionForm>
     </main>
   );
